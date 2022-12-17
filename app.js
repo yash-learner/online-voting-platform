@@ -3,8 +3,8 @@ const app = express();
 const bodyParser = require("body-parser");
 
 const { User } = require("./models");
-const bcrypt = require('bcrypt');
 const passport = require("passport");
+const bcrypt = require("bcrypt");
 // eslint-disable-next-line no-unused-vars
 const connectEnsureLogin = require("connect-ensure-login");
 const session = require("express-session");
@@ -24,26 +24,33 @@ app.use(
   })
 );
 
-passport.use(
-  new LocalStrategy(
-    {
-      usernameField: "email",
-      passwordField: "password",
-    },
-    function (username, password, done) {
-      User.findOne({ where: { email: username, password: password } })
-        .then(function (user) {
-          return done(null, user);
-        })
-        .catch((error) => {
-          return done(error);
-        });
-    }
-  )
-);
-
 app.use(passport.initialize());
 app.use(passport.session());
+
+passport.use(
+    new LocalStrategy(
+      {
+        usernameField: "email",
+        passwordField: "password",
+      },
+      function (username, password, done) {
+        User.findOne({ where: { email: username } })
+          .then(async (user) => {
+            const result = await bcrypt.compare(password, user.password);
+            if (result) {
+              return done(null, user);
+            } else {
+              return done(null, false, { message: "Invalid password" });
+            }
+          })
+          .catch(() => {
+            return done(null, false, { message: "Email Id not found" });
+          });
+      }
+    )
+  )
+
+
 
 passport.serializeUser(function (user, done) {
   console.log("Serializing user in session: ", user.id);
@@ -67,6 +74,24 @@ app.get("/signup", (request, response) => {
 app.get("/login", (request, response) => {
   response.render("login");
 });
+
+app.get("/signout", (request, response, next) => {
+  request.logout((err) => {
+    if (err) {
+      return next(err);
+    }
+    response.redirect("/");
+  });
+});
+
+app.post(
+  "/session",
+  passport.authenticate("local", { failureRedirect: "/login" }),
+  function (request, response) {
+    console.log(request.user);
+    response.redirect("/elections");
+  }
+);
 
 const saltRounds = 10;
 app.post("/users", async function (request, response) {
@@ -96,9 +121,9 @@ app.post("/users", async function (request, response) {
   }
 });
 
-app.get("/elections", (request, response) => {
-    response.render("elections");
-})
+app.get("/elections", connectEnsureLogin.ensureLoggedIn(), (request, response) => {
+  response.render("elections");
+});
 
 app.get("/", function (request, response) {
   response.render("index");
