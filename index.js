@@ -1,8 +1,6 @@
-const express = require("express");
-const app = express();
+/* eslint-disable no-undef */
+const app = require("./app");
 
-app.get("/", function (request, response) {
-  response.send("Hello World");
+let server = app.listen(process.env.PORT || 3000, () => {
+  console.log(`Started express server at port ${server.address().port}`);
 });
-
-app.listen(3000);
