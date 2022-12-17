@@ -1,8 +1,7 @@
 const express = require("express");
 const app = express();
 const bodyParser = require("body-parser");
-
-const { User } = require("./models");
+const { User, Election } = require("./models");
 const passport = require("passport");
 const bcrypt = require("bcrypt");
 // eslint-disable-next-line no-unused-vars
@@ -28,29 +27,27 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 passport.use(
-    new LocalStrategy(
-      {
-        usernameField: "email",
-        passwordField: "password",
-      },
-      function (username, password, done) {
-        User.findOne({ where: { email: username } })
-          .then(async (user) => {
-            const result = await bcrypt.compare(password, user.password);
-            if (result) {
-              return done(null, user);
-            } else {
-              return done(null, false, { message: "Invalid password" });
-            }
-          })
-          .catch(() => {
-            return done(null, false, { message: "Email Id not found" });
-          });
-      }
-    )
+  new LocalStrategy(
+    {
+      usernameField: "email",
+      passwordField: "password",
+    },
+    function (username, password, done) {
+      User.findOne({ where: { email: username } })
+        .then(async (user) => {
+          const result = await bcrypt.compare(password, user.password);
+          if (result) {
+            return done(null, user);
+          } else {
+            return done(null, false, { message: "Invalid password" });
+          }
+        })
+        .catch(() => {
+          return done(null, false, { message: "Email Id not found" });
+        });
+    }
   )
-
-
+);
 
 passport.serializeUser(function (user, done) {
   console.log("Serializing user in session: ", user.id);
@@ -121,8 +118,45 @@ app.post("/users", async function (request, response) {
   }
 });
 
-app.get("/elections", connectEnsureLogin.ensureLoggedIn(), (request, response) => {
-  response.render("elections");
+app.get(
+  "/elections",
+  connectEnsureLogin.ensureLoggedIn(),
+  (request, response) => {
+    response.render("elections");
+  }
+);
+
+app.post(
+  "/elections",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (request, response) => {
+    console.log("creating new election :", request.body);
+    console.log("User Id:", request.user.id);
+    try {
+      // eslint-disable-next-line no-unused-vars
+      const election = await Election.createElection({
+        name: request.body.electionName,
+        userId: request.user.id,
+      });
+      return response.redirect(`/elections/${election.id}`);
+    } catch (error) {
+      return response.status(422).json(error);
+    }
+  }
+);
+
+app.get("/elections/new", (request, response) => {
+  response.render("newElection");
+});
+
+app.get("/elections/:id", async (request, response) => {
+  console.log("election id :", request.params.id);
+  try {
+    const election = await Election.findByPk(request.params.id);
+    response.render("electionIndex", { election: election });
+  } catch (error) {
+    return response.status(422).json(error);
+  }
 });
 
 app.get("/", function (request, response) {
