@@ -121,8 +121,13 @@ app.post("/users", async function (request, response) {
 app.get(
   "/elections",
   connectEnsureLogin.ensureLoggedIn(),
-  (request, response) => {
-    response.render("elections");
+  async (request, response) => {
+    const loggedInUser = request.user;
+    const liveElections = await Election.live(loggedInUser.id);
+    const upcoming = await Election.upcoming(loggedInUser.id);
+    const completed = await Election.completed(loggedInUser.id);
+    console.log(upcoming);
+    response.render("elections", { liveElections, upcoming, completed });
   }
 );
 

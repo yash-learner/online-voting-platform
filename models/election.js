@@ -21,6 +21,46 @@ module.exports = (sequelize, DataTypes) => {
         userId,
       });
     }
+
+
+
+    static async allElections(userId) {
+      const elections = await Election.findAll();
+      return elections;
+    }
+
+    static async live(userId) {
+      const elections = await Election.findAll({
+        where: {
+          userId,
+          status: true,
+        },
+        order: [["id", "ASC"]],
+      });
+      return elections;
+    }
+
+    static async upcoming(userId) {
+      const elections = await Election.findAll({
+        where: {
+          userId,
+          status: null,
+        },
+        order: [["id", "ASC"]],
+      });
+      return elections;
+    }
+
+    static async completed(userId) {
+      const elections = await Election.findAll({
+        where: {
+          userId,
+          status: false,
+        },
+        order: [["id", "ASC"]],
+      });
+      return elections;
+    }
   }
   Election.init(
     {
