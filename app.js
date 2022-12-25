@@ -1,6 +1,7 @@
 const express = require("express");
 const app = express();
 const bodyParser = require("body-parser");
+const path = require("path");
 const { User, Election } = require("./models");
 const passport = require("passport");
 const bcrypt = require("bcrypt");
@@ -12,6 +13,8 @@ const cookieParser = require("cookie-parser");
 app.use(express.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(cookieParser("shh! some secret string"));
+// eslint-disable-next-line no-undef
+app.use(express.static(path.join(__dirname, "/public")));
 app.set("view engine", "ejs");
 
 app.use(
@@ -127,7 +130,11 @@ app.get(
     const upcoming = await Election.upcoming(loggedInUser.id);
     const completed = await Election.completed(loggedInUser.id);
     console.log(upcoming);
-    response.render("elections", { liveElections, upcoming, completed });
+    if (request.accepts("html")) {
+      response.render("elections", { liveElections, upcoming, completed });
+    } else {
+      response.json({ liveElections, upcoming, completed });
+    }
   }
 );
 
@@ -150,9 +157,7 @@ app.post(
   }
 );
 
-app.get("/elections/new", (request, response) => {
-  response.render("newElection");
-});
+
 
 app.get("/elections/:id", async (request, response) => {
   console.log("election id :", request.params.id);
@@ -162,6 +167,10 @@ app.get("/elections/:id", async (request, response) => {
   } catch (error) {
     return response.status(422).json(error);
   }
+});
+
+app.get("/elections/new", (request, response) => {
+  response.render("newElection");
 });
 
 app.get("/", function (request, response) {
