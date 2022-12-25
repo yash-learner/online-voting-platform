@@ -11,7 +11,20 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
+      Question.belongsTo(models.Election, {
+        foreignKey: "electionId",
+        onDelete: "CASCADE",
+      });
     }
+
+    static async getAllQuestions(electionId) {
+      return Question.findAll({
+        where: {
+          electionId: electionId
+        }
+      })
+    }
+
   }
   Question.init({
     title: DataTypes.STRING,

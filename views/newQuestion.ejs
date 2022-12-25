@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title><%= election.electionName %></title>
+    <link rel="stylesheet" href="./css/styles.css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body>
+    <div class="grid grid-cols-6">
+      <div class="col-start-3 col-span-2">
+        <%- include('header.ejs', {title:"New Question"})%>
+        <form action="/questions" method="post">
+          <div class="py-3">
+            <label for="title">What's the question ?: </label>
+            <input name="title" type="text" class="border border-gray-300 text-gray-900 text-sm rounded w-full p-2" autofocus
+            placeholder="Type your question here!"
+            >
+          </div>
+          <div class="py-3">
+            <label for="description">Description: </label>
+            <input name="description" type="text" class="border border-gray-300 text-gray-900 text-sm rounded w-full p-2" placeholder="Description">
+          </div>
+          <input type="hidden" name="electionId" value="<%=election.id%>">
+          <div class="py-3">
+            <button type="submit" class="text-white bg-green-600 hover:bg-green-700 font-medium rounded text-sm px-5 py-2 mr-2 mb-2">Submit</button>
+          </div>
+        </form>
+        <div class="mb-3"></div>
+      </div>
+    </div>
+  </body>
+</html>

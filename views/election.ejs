@@ -2,7 +2,7 @@
   <div class="flex">
     <h5 class="text-black"><%= title %></h5>
     <div
-      id="count-overdue"
+      id="count"
       class="ml-2 bg-gray-200 px-2 pt-1 text-sm font-bold text-black"
     >
       <%= elections.length%>
@@ -10,17 +10,17 @@
   </div>
   <ul class="list-none">
     <% for(let i = 0; i < elections.length; i++) { %>
-    <li class="Todo-Item">
+    <li class="Election-Item">
       <div
         class="flex w-fit my-2 px-2 py-1 items-center rounded hover:bg-purple-50"
       >
         <input
-          id="todo-checkbox-<%= elections[i].id %>"
+          id="election-checkbox-<%= elections[i].id %>"
           type="checkbox"
           class="w-4 h-4 text-blue-600 bg-gray-100 rounded border-color-gray"
         />
         <label
-          for="todo-checkbox-<%= elections[i].id %>"
+          for="election-checkbox-<%= elections[i].id %>"
           class="ml-2 text-sm text-black-800 cursor-pointer"
           ><%= elections[i].electionName%></label
         >
@@ -41,14 +41,15 @@
             />
           </svg>
         </a>
-        <a href="#" class="hidden trash-icon ml-2">
-          <svg
+
+        <a href="" class="hidden trash-icon ml-2"
+          ><svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
-            viewBox="0 0 24 24"
+            viewBox="0 0 26 26"
             stroke-width="1.5"
             stroke="currentColor"
-            class="w-5 h-4"
+            class="w-6 h-6"
           >
             <path
               stroke-linecap="round"

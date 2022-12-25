@@ -2,7 +2,7 @@ const express = require("express");
 const app = express();
 const bodyParser = require("body-parser");
 const path = require("path");
-const { User, Election } = require("./models");
+const { User, Election, Question } = require("./models");
 const passport = require("passport");
 const bcrypt = require("bcrypt");
 // eslint-disable-next-line no-unused-vars
@@ -163,7 +163,26 @@ app.get("/elections/:id", async (request, response) => {
   console.log("election id :", request.params.id);
   try {
     const election = await Election.findByPk(request.params.id);
-    response.render("electionIndex", { election: election });
+    const questions = await Question.getAllQuestions(election.id);
+    response.render("electionIndex", { election: election, questions: questions });
+  } catch (error) {
+    return response.status(422).json(error);
+  }
+});
+
+app.get(`/elections/:id/questions/new`, async (request, response) => {
+  const election = await Election.findByPk(request.params.id);
+  response.render("newQuestion", {election:election})
+})
+
+app.post("/questions", async (request, response) => {
+  try {
+    const question = await Question.create({
+      title: request.body.title,
+      description: request.body.description,
+      electionId: request.body.electionId
+    });
+    response.redirect(`/elections/${request.body.electionId}`)
   } catch (error) {
     return response.status(422).json(error);
   }

@@ -4,6 +4,6 @@ body {
   background-color: white;
 }
 
-.Todo-Item:hover .trash-icon {
+.Election-Item:hover .trash-icon {
   display: block;
 }
