@@ -12,9 +12,12 @@
     <div class="grid grid-cols-6">
       <div class="col-start-3 col-span-2">
         <%- include('header.ejs', {title:election.electionName})%>
-        <p>Questions</p>
+        <div class="flex">
+          <p class="mr-2">Questions</p>
+          <a href="/elections/<%= election.id %>/questions/new">Add</a>
+        </div>
         <% if(questions.length === 0) { %>
-        <a href="/elections/<%= election.id %>/questions/new">Add</a>
+          <p>You haven't added any questions</p>
         <%} else {%>
         <ul class="list-none">
           <% for(let i = 0; i < questions.length; i++) { %>
