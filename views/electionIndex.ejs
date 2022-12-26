@@ -11,13 +11,13 @@
   <body>
     <div class="grid grid-cols-6">
       <div class="col-start-3 col-span-2">
-        <%- include('header.ejs', {title:election.electionName})%>
+        <%- include('header.ejs', {title:"Online Voting Platform"})%>
         <div class="flex">
-          <p class="mr-2">Questions</p>
-          <a href="/elections/<%= election.id %>/questions/new">Add</a>
+          <h2 class="mr-2 text-2xl">Questions</h2>
+          <a class="text-2xl text-green-300 hover:text-green-700 " href="/elections/<%= election.id %>/questions/new">Add</a>
         </div>
         <% if(questions.length === 0) { %>
-          <p>You haven't added any questions</p>
+        <p>You haven't added any questions</p>
         <%} else {%>
         <ul class="list-none">
           <% for(let i = 0; i < questions.length; i++) { %>
@@ -25,11 +25,15 @@
             <div
               class="flex w-fit my-2 px-2 py-1 items-center rounded hover:bg-purple-50"
             >
+            <a href="/elections/<%= election.id %>/questions/<%= questions[i].id%>">
               <label
                 for="question-checkbox-<%= questions[i].id %>"
                 class="ml-2 text-sm text-gray-600 cursor-pointer"
+
                 ><%= questions[i].title %></label
               >
+            </a>
+
               <a href="" class="block ml-2">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -62,7 +66,7 @@
                   />
                 </svg>
               </a>
-              <a href="">
+              <button onclick="openForm(<%= questions[i].id%>)">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
@@ -77,7 +81,37 @@
                     d="M12 4.5v15m7.5-7.5h-15"
                   />
                 </svg>
-              </a>
+              </button>
+              <div class="form-popup z-9 hidden" id="optionForm-<%= questions[i].id %>">
+              <form action="/options" method="post">
+                <div class="flex space-x-4">
+                  <div class="">
+                    <input
+                      name="title"
+                      type="text"
+                      class="border border-gray-300 text-gray-900 text-sm rounded w-full p-2"
+                      autofocus
+                      placeholder="Type your option here"
+                    />
+                  </div>
+                  <input type="hidden" name="questionId" value="<%= questions[i].id %>">
+                  <input type="hidden" name="electionId" value="<%= election.id %>">
+                  <button
+                    type="submit"
+                    class="bg-green-600 text-white font-medium rounded text-sm h-10 p-3 rounded"
+                  >
+                    Add
+                  </button>
+                  <button
+                  type="button"
+                  class="bg-red-600 text-white font-medium rounded text-sm h-10 p-3 rounded"
+                  onclick="closeForm(<%= questions[i].id%>)"
+                >
+                  Cancel
+                </button>
+                </div>
+              </form>
+            </div>
             </div>
           </li>
           <% } %>
@@ -85,5 +119,14 @@
         <%}%>
       </div>
     </div>
+    <script>
+      function openForm(id) {
+        document.getElementById(`optionForm-${id}`).style.display = "block";
+      }
+
+      function closeForm(id) {
+        document.getElementById(`optionForm-${id}`).style.display = "none";
+      }
+    </script>
   </body>
 </html>

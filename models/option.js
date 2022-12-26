@@ -1,7 +1,5 @@
-'use strict';
-const {
-  Model
-} = require('sequelize');
+"use strict";
+const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class Option extends Model {
     /**
@@ -11,14 +9,40 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
+      Option.belongsTo(models.Question, {
+        foreignKey: "questionId",
+        onDelete: "CASCADE",
+      });
+    }
+    static async getOptions(questionId) {
+      const options = Option.findAll({
+        where: {
+          questionId,
+        },
+      });
+      return options;
+    }
+    static async editTitle(id, title) {
+      option = await Option.update(
+        { title: title },
+        {
+          where: {
+            id,
+          },
+        }
+      );
+      console.log(option);
     }
   }
-  Option.init({
-    title: DataTypes.STRING,
-    questionId: DataTypes.INTEGER
-  }, {
-    sequelize,
-    modelName: 'Option',
-  });
+  Option.init(
+    {
+      title: DataTypes.STRING,
+      questionId: DataTypes.INTEGER,
+    },
+    {
+      sequelize,
+      modelName: "Option",
+    }
+  );
   return Option;
 };

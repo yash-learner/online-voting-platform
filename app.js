@@ -2,7 +2,7 @@ const express = require("express");
 const app = express();
 const bodyParser = require("body-parser");
 const path = require("path");
-const { User, Election, Question } = require("./models");
+const { User, Election, Question, Option } = require("./models");
 const passport = require("passport");
 const bcrypt = require("bcrypt");
 // eslint-disable-next-line no-unused-vars
@@ -172,28 +172,75 @@ app.get("/elections/:id", async (request, response) => {
 
 app.get(`/elections/:id/questions/new`, async (request, response) => {
   const election = await Election.findByPk(request.params.id);
-  response.render("newQuestion", {election:election})
+  return response.render("newQuestion", {election:election})
 })
 
 app.post("/questions", async (request, response) => {
   try {
-    const question = await Question.create({
+    await Question.create({
       title: request.body.title,
       description: request.body.description,
       electionId: request.body.electionId
     });
-    response.redirect(`/elections/${request.body.electionId}`)
+    return response.redirect(`/elections/${request.body.electionId}`)
   } catch (error) {
     return response.status(422).json(error);
   }
 });
 
+app.get(`/elections/:id/questions/:questionId`, async (request, response) => {
+  const election = await Election.findByPk(request.params.id);
+  const question = await Question.findByPk(request.params.questionId);
+  const options = await Option.getOptions(request.params.questionId);
+  console.log(options, "Options");
+  return response.render("questionIndex", {election: election, question: question, options: options});
+});
+
+app.get(`/elections/:id/questions/:id/options/new`, async (request, response) => {
+  response.render("newOption",)
+});
+
+app.get("/elections/:electionId/questions/:questionId/options/:id", async (request, response) => {
+  console.log(request.params.electionId);
+  const election = await Election.findByPk(request.params.electionId);
+  const question = await Question.findByPk(request.params.questionId);
+  const option = await Option.findByPk(request.params.id);
+  console.log(election, question, option);
+  return response.render("editOption",{election: election, question: question, option: option});
+})
+
+app.put("/options/:id", async (request, response) => {
+  try {
+    console.log(request.body.title,request.body.electionId,request.body.questionId);
+    await Option.editTitle(request.params.id, request.body.title);
+    // return response.send(200);
+    return response.redirect(`/elections/${request.body.electionId}/questions/${request.body.questionId}`);
+    // return response.redirect("/elections");
+  } catch (error) {
+    return response.status(422).json(error);
+  }
+})
+
+app.post("/options", async (request, response) => {
+  try {
+    await Option.create({
+      title: request.body.title,
+      questionId: request.body.questionId
+    })
+    console.log("Option Added",request.body.electionId );
+    response.redirect(`/elections/${request.body.electionId}/questions/${request.body.questionId}`)
+  } catch (error) {
+    return response.status(422).json(error);
+  }
+})
+
+
 app.get("/elections/new", (request, response) => {
-  response.render("newElection");
+  return response.render("newElection");
 });
 
 app.get("/", function (request, response) {
-  response.render("index");
+  return response.render("index");
 });
 
 module.exports = app;
