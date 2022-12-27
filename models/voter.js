@@ -11,6 +11,29 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
+      Voter.belongsTo(models.Election, {
+        foreignKey: "electionId",
+        onDelete: "CASCADE",
+      });
+    }
+
+    static addVoter({ voterId, password, electionId }) {
+      return this.create({
+        voterId: voterId,
+        password: password,
+        voted: false,
+        electionId: electionId,
+        voterIdPlusElectionId: voterId+electionId
+      });
+    }
+
+    static async getAllVoters(electionId) {
+      return Voter.findAll({
+        where: {
+          electionId: electionId
+        },
+        order: [["id", "ASC"]],
+      });
     }
   }
   Voter.init({

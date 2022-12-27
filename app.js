@@ -2,7 +2,7 @@ const express = require("express");
 const app = express();
 const bodyParser = require("body-parser");
 const path = require("path");
-const { User, Election, Question, Option } = require("./models");
+const { User, Election, Question, Option, Voter } = require("./models");
 const passport = require("passport");
 const bcrypt = require("bcrypt");
 // eslint-disable-next-line no-unused-vars
@@ -164,7 +164,8 @@ app.get("/elections/:id", async (request, response) => {
   try {
     const election = await Election.findByPk(request.params.id);
     const questions = await Question.getAllQuestions(election.id);
-    response.render("electionIndex", { election: election, questions: questions });
+    const voters = await Voter.getAllVoters(election.id);
+    response.render("electionIndex", { election: election, questions: questions, voters: voters });
   } catch (error) {
     return response.status(422).json(error);
   }
@@ -276,6 +277,22 @@ app.delete("/elections/:id", async (request, response) => {
   try {
     await Election.deleteElection(request.params.id, request.user.id);
     return response.json(true);
+  } catch (error) {
+    return response.status(422).json(error);
+  }
+});
+
+app.post("/voters", async (request, response) => {
+  const hashedPwd = await bcrypt.hash(request.body.password, saltRounds);
+  console.log(request.body);
+  try {
+    await Voter.addVoter({
+      voterId: request.body.voterId,
+      password: hashedPwd,
+      electionId: request.body.electionId
+    })
+    console.log("Voter Added",request.body.electionId );
+    response.redirect(`/elections/${request.body.electionId}/`)
   } catch (error) {
     return response.status(422).json(error);
   }
