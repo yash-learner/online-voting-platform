@@ -7,7 +7,23 @@
     <link rel="stylesheet" href="./css/styles.css" />
     <script src="https://cdn.tailwindcss.com"></script>
     <script></script>
-    <title></title>
+    <title>Election's Home Page</title>
+    <script>
+      function deleteElection(id) {
+        fetch(`/elections/${id}`, {
+          method: "delete",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+          })
+        })
+          .then((res) => {
+            if (res.ok) {
+              window.location.reload();
+            }
+          })
+          .catch((err) => console.error(err));
+      }
+    </script>
   </head>
   <body>
     <div class="grid grid-cols-6">

@@ -14,25 +14,21 @@
       <div
         class="flex w-fit my-2 px-2 py-1 items-center rounded hover:bg-purple-50"
       >
-        <input
-          id="election-checkbox-<%= elections[i].id %>"
-          type="checkbox"
-          class="w-4 h-4 text-blue-600 bg-gray-100 rounded border-color-gray"
-        />
-        <label
-          for="election-checkbox-<%= elections[i].id %>"
-          class="ml-2 text-sm text-black-800 cursor-pointer"
-          ><%= elections[i].electionName%></label
+        <a href="/elections/<%=elections[i].id%>">
+          <label
+            for="election-checkbox-<%= elections[i].id %>"
+            class="ml-2 text-sm text-black-800 cursor-pointer"
+            ><%= elections[i].electionName%></label
+          ></a
         >
-
-        <a href="/elections/<%=elections[i].id%>" class="block ml-2">
+        <a href="" class="block ml-2">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
             viewBox="0 0 25 25"
             stroke-width="1.5"
             stroke="currentColor"
-            class="w-6 h-6"
+            class="w-5 h-5"
           >
             <path
               stroke-linecap="round"
@@ -42,14 +38,14 @@
           </svg>
         </a>
 
-        <a href="" class="hidden trash-icon ml-2"
+        <a href="" class="trash-icon ml-2" onclick="deleteElection(<%=elections[i].id%>)"
           ><svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
             viewBox="0 0 26 26"
             stroke-width="1.5"
             stroke="currentColor"
-            class="w-6 h-6"
+            class="w-5 h-5"
           >
             <path
               stroke-linecap="round"

@@ -271,6 +271,16 @@ app.get("/elections/new", (request, response) => {
   return response.render("newElection");
 });
 
+app.delete("/elections/:id", async (request, response) => {
+  connectEnsureLogin.ensureLoggedIn();
+  try {
+    await Election.deleteElection(request.params.id, request.user.id);
+    return response.json(true);
+  } catch (error) {
+    return response.status(422).json(error);
+  }
+});
+
 app.get("/", function (request, response) {
   return response.render("index");
 });
