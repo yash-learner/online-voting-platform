@@ -36,30 +36,48 @@
           >
         </div>
         <div class="flex mt-5">
-          <div><h2 class="mr-2 text-xl font-black">Questions</h2></div>
-          <div class="bg-green-600 p-1 rounded"><a
-            class="text-green-300 hover:text-green-700 flex"
-            href="/elections/<%= election.id %>/questions/new"
-            ><svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke-width="1.5"
-              stroke="currentColor"
-              class="w-6 h-6"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M12 4.5v15m7.5-7.5h-15"
+          <form action="/questions" method="post">
+            <div class="flex gap-2">
+              <div class="flex-auto">
+              <label class="mr-14" for="title">Question Title</label>
+                <input
+                  name="title"
+                  type="text"
+                  placeholder="Type your question here!"
+                  class="border border-gray-300 text-gray-900 text-sm rounded w-full p-2"
+                  autofocus
+                  required
+                />
+              </div>
+              <div class="flex-auto">
+              <label class="mr-14" for="description">Description</label>
+                <input
+                  name="description"
+                  type="text"
+                  placeholder="Type your description here"
+                  class="border border-gray-300 text-gray-900 text-sm rounded w-full p-2"
+                />
+              </div>
+              <input
+                type="hidden"
+                name="electionId"
+                value="<%= election.id %>"
               />
-            </svg><span class="text-white">Add</span>
-          </a></div>
-
+              <div class="flex-auto mt-6">
+                <button
+                  type="submit"
+                  class="bg-green-600 text-white px-5 py-1.5 rounded font-medium mr-2"
+                >
+                  Add
+                </button>
+              </div>
+            </div>
+          </form>
         </div>
         <% if(questions.length === 0) { %>
         <p class="mt-5">You haven't added any questions</p>
         <%} else {%>
+        <div><h2 class="mr-2 mt-5 text-xl font-black">Questions</h2></div>
         <ul class="list-none">
           <% for(let i = 0; i < questions.length; i++) { %>
           <li class="question-Item">
@@ -70,6 +88,7 @@
                 href="/elections/<%= election.id %>/questions/<%= questions[i].id%>"
               >
                 <label
+                  title="<%=questions[i].description%>"
                   for="question-checkbox-<%= questions[i].id %>"
                   class="ml-2 text-sm text-gray-600 cursor-pointer"
                   ><%= questions[i].title %></label
@@ -143,7 +162,7 @@
                         type="text"
                         class="border border-gray-300 text-gray-900 text-sm rounded w-full p-2"
                         autofocus
-                        placeholder="Type your option here"
+                        placeholder="<%=questions[i].description%>"
                       />
                     </div>
                     <input
@@ -219,6 +238,9 @@
           </form>
         </div>
         <div class="mt-5">
+          <% if(voters.length === 0) { %>
+            <p class="mt-5">You haven't added any questions</p>
+          <%} else {%>
           <h3 class="text-xl font-black">Voters</h3>
           <ul>
             <% for(let i = 0; i < voters.length; i++ ) {%>
@@ -272,6 +294,7 @@
             </li>
             <%}%>
           </ul>
+          <%}%>
         </div>
       </div>
     </div>
