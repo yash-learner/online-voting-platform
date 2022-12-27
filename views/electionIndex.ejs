@@ -12,8 +12,15 @@
     <div class="grid grid-cols-6">
       <div class="col-start-3 col-span-2">
         <%- include('header.ejs', {title:"Online Voting Platform"})%>
-        <div class="flex">
-          <h2 class="mr-2 text-2xl">Questions</h2>
+        <div class="mt-5">
+          <a href="/elections/"
+            ><h2 class="text-2xl font-black">
+              <%= election.electionName %>
+            </h2></a
+          >
+        </div>
+        <div class="flex mt-5">
+          <h2 class="mr-2 text-xl font-black">Questions</h2>
           <a class="text-2xl text-green-300 hover:text-green-700 " href="/elections/<%= election.id %>/questions/new">Add</a>
         </div>
         <% if(questions.length === 0) { %>
