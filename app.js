@@ -215,7 +215,6 @@ app.put("/options/:id", async (request, response) => {
     await Option.editTitle(request.params.id, request.body.title);
     // return response.send(200);
     return response.redirect(`/elections/${request.body.electionId}/questions/${request.body.questionId}`);
-    // return response.redirect("/elections");
   } catch (error) {
     return response.status(422).json(error);
   }
@@ -234,6 +233,19 @@ app.post("/options", async (request, response) => {
   }
 })
 
+app.get("/elections/:electionId/questions/:id/edit", async (request, response) => {
+  const election = await Election.findByPk(request.params.electionId);
+  const question = await Question.findByPk(request.params.id);
+  response.render("editQuestion", {election, question});
+})
+
+app.put("/questions/:id", async (request, response) => {
+  try {
+    await Question.editQuestion(request.params.id, request.body.title, request.body.description);
+  } catch (error) {
+    return response.status(422).json(error);
+  }
+})
 
 app.get("/elections/new", (request, response) => {
   return response.render("newElection");

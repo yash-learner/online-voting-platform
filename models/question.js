@@ -26,8 +26,21 @@ module.exports = (sequelize, DataTypes) => {
       return Question.findAll({
         where: {
           electionId: electionId
+        },
+        order: [["id", "ASC"]],
+      });
+    }
+
+    static async editQuestion(id, title, description) {
+      question = await Question.update(
+        { title: title, description: description },
+        {
+          where: {
+            id,
+          },
         }
-      })
+      );
+      console.log(question);
     }
 
   }
