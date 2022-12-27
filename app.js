@@ -220,6 +220,16 @@ app.put("/options/:id", async (request, response) => {
   }
 })
 
+app.delete("/questions/:id", async (request, response) => {
+  connectEnsureLogin.ensureLoggedIn();
+  try {
+    await Question.deleteQuestion(request.params.id);
+    return response.json(true);
+  } catch (error) {
+    return response.status(422).json(error);
+  }
+});
+
 app.delete("/options/:id", async (request, response) => {
   connectEnsureLogin.ensureLoggedIn();
   try {
@@ -228,7 +238,7 @@ app.delete("/options/:id", async (request, response) => {
   } catch (error) {
     return response.status(422).json(error);
   }
-})
+});
 
 app.post("/options", async (request, response) => {
   try {

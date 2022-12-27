@@ -43,6 +43,14 @@ module.exports = (sequelize, DataTypes) => {
       console.log(question);
     }
 
+    static async deleteQuestion(id) {
+      return this.destroy({
+        where: {
+          id
+        },
+      });
+    }
+
   }
   Question.init({
     title: DataTypes.STRING,

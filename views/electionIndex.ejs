@@ -7,6 +7,21 @@
     <title><%= election.electionName %></title>
     <link rel="stylesheet" href="./css/styles.css" />
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      function deleteQuestion(id) {
+        fetch(`/questions/${id}`, {
+          method: "delete",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({}),
+        })
+          .then((res) => {
+            if (res.ok) {
+              window.location.reload();
+            }
+          })
+          .catch((err) => console.error(err));
+      }
+    </script>
   </head>
   <body>
     <div class="grid grid-cols-6">
@@ -20,8 +35,26 @@
           >
         </div>
         <div class="flex mt-5">
-          <h2 class="mr-2 text-xl font-black">Questions</h2>
-          <a class="text-2xl text-green-300 hover:text-green-700 " href="/elections/<%= election.id %>/questions/new">Add</a>
+          <div><h2 class="mr-2 text-xl font-black">Questions</h2></div>
+          <div class="bg-green-600 p-1 rounded"><a
+            class="text-green-300 hover:text-green-700 flex"
+            href="/elections/<%= election.id %>/questions/new"
+            ><svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+              class="w-6 h-6"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M12 4.5v15m7.5-7.5h-15"
+              />
+            </svg><span class="text-white">Add</span>
+          </a></div>
+
         </div>
         <% if(questions.length === 0) { %>
         <p>You haven't added any questions</p>
@@ -32,16 +65,20 @@
             <div
               class="flex w-fit my-2 px-2 py-1 items-center rounded hover:bg-purple-50"
             >
-            <a href="/elections/<%= election.id %>/questions/<%= questions[i].id%>">
-              <label
-                for="question-checkbox-<%= questions[i].id %>"
-                class="ml-2 text-sm text-gray-600 cursor-pointer"
-
-                ><%= questions[i].title %></label
+              <a
+                href="/elections/<%= election.id %>/questions/<%= questions[i].id%>"
               >
-            </a>
+                <label
+                  for="question-checkbox-<%= questions[i].id %>"
+                  class="ml-2 text-sm text-gray-600 cursor-pointer"
+                  ><%= questions[i].title %></label
+                >
+              </a>
 
-              <a href="/elections/<%= election.id %>/questions/<%= questions[i].id%>/edit" class="block ml-2">
+              <a
+                href="/elections/<%= election.id %>/questions/<%= questions[i].id%>/edit"
+                class="block ml-2"
+              >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
@@ -57,7 +94,11 @@
                   />
                 </svg>
               </a>
-              <a href="">
+              <a
+                href="#"
+                class="trash-icon ml-2"
+                onclick="deleteQuestion(<%=questions[i].id%>)"
+              >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
@@ -89,36 +130,47 @@
                   />
                 </svg>
               </button>
-              <div class="form-popup z-9 hidden" id="optionForm-<%= questions[i].id %>">
-              <form action="/options" method="post">
-                <div class="flex space-x-4">
-                  <div class="">
+              <div
+                class="form-popup z-9 hidden"
+                id="optionForm-<%= questions[i].id %>"
+              >
+                <form action="/options" method="post">
+                  <div class="flex space-x-4">
+                    <div class="">
+                      <input
+                        name="title"
+                        type="text"
+                        class="border border-gray-300 text-gray-900 text-sm rounded w-full p-2"
+                        autofocus
+                        placeholder="Type your option here"
+                      />
+                    </div>
                     <input
-                      name="title"
-                      type="text"
-                      class="border border-gray-300 text-gray-900 text-sm rounded w-full p-2"
-                      autofocus
-                      placeholder="Type your option here"
+                      type="hidden"
+                      name="questionId"
+                      value="<%= questions[i].id %>"
                     />
+                    <input
+                      type="hidden"
+                      name="electionId"
+                      value="<%= election.id %>"
+                    />
+                    <button
+                      type="submit"
+                      class="bg-green-600 text-white font-medium rounded text-sm h-10 p-3 rounded"
+                    >
+                      Add
+                    </button>
+                    <button
+                      type="button"
+                      class="bg-red-600 text-white font-medium rounded text-sm h-10 p-3 rounded"
+                      onclick="closeForm(<%= questions[i].id%>)"
+                    >
+                      Cancel
+                    </button>
                   </div>
-                  <input type="hidden" name="questionId" value="<%= questions[i].id %>">
-                  <input type="hidden" name="electionId" value="<%= election.id %>">
-                  <button
-                    type="submit"
-                    class="bg-green-600 text-white font-medium rounded text-sm h-10 p-3 rounded"
-                  >
-                    Add
-                  </button>
-                  <button
-                  type="button"
-                  class="bg-red-600 text-white font-medium rounded text-sm h-10 p-3 rounded"
-                  onclick="closeForm(<%= questions[i].id%>)"
-                >
-                  Cancel
-                </button>
-                </div>
-              </form>
-            </div>
+                </form>
+              </div>
             </div>
           </li>
           <% } %>
