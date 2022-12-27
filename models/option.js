@@ -33,6 +33,13 @@ module.exports = (sequelize, DataTypes) => {
       );
       console.log(option);
     }
+    static async deleteOption(id) {
+      return this.destroy({
+        where: {
+          id
+        },
+      });
+    }
   }
   Option.init(
     {

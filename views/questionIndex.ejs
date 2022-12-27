@@ -6,7 +6,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="./css/styles.css" />
     <script src="https://cdn.tailwindcss.com"></script>
-    <title>Document</title>
+    <title><%=question.title%> | <%= election.electionName %></title>
+    <script>
+      function deleteOption(id) {
+        fetch(`/options/${id}`, {
+          method: "delete",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+          }),
+        })
+          .then((res) => {
+            if (res.ok) {
+              window.location.reload();
+            }
+          })
+          .catch((err) => console.error(err));
+      }
+    </script>
   </head>
   <body>
     <div class="grid grid-cols-6">
@@ -36,8 +52,16 @@
                   autofocus
                 />
               </div>
-              <input type="hidden" name="questionId" value="<%= question.id %>">
-              <input type="hidden" name="electionId" value="<%= election.id %>">
+              <input
+                type="hidden"
+                name="questionId"
+                value="<%= question.id %>"
+              />
+              <input
+                type="hidden"
+                name="electionId"
+                value="<%= election.id %>"
+              />
               <div>
                 <button
                   type="submit"
@@ -60,7 +84,10 @@
                 <span class="ml-2 text-sm text-black-800 cursor-pointer"
                   ><%= options[i].title %></span
                 >
-                <a href="/elections/<%= election.id %>/questions/<%= question.id %>/options/<%=options[i].id%>" class="block ml-2">
+                <a
+                  href="/elections/<%= election.id %>/questions/<%= question.id %>/options/<%=options[i].id%>"
+                  class="block ml-2"
+                >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
@@ -77,7 +104,10 @@
                   </svg>
                 </a>
 
-                <a href="" class="trash-icon ml-2"
+                <a
+                  href="#"
+                  class="trash-icon ml-2"
+                  onclick="deleteOption(<%=options[i].id%>)"
                   ><svg
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"

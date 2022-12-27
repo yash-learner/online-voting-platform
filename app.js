@@ -220,6 +220,16 @@ app.put("/options/:id", async (request, response) => {
   }
 })
 
+app.delete("/options/:id", async (request, response) => {
+  connectEnsureLogin.ensureLoggedIn();
+  try {
+    await Option.deleteOption(request.params.id);
+    return response.json(true);
+  } catch (error) {
+    return response.status(422).json(error);
+  }
+})
+
 app.post("/options", async (request, response) => {
   try {
     await Option.create({
