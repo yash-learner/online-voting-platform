@@ -149,6 +149,19 @@ app.post("/users", async function (request, response) {
   }
 });
 
+const checkElectionAuthenticated = async (request, response, next) => {
+  const election = await Election.findByPk(request.params.id);
+  if (request.isAuthenticated() && election.userId === request.user.id) {
+    return next();
+  } else if(request.isAuthenticated() && election.userId !== request.user.id && request.user.electionId === undefined){
+    return response.redirect("/elections");
+  }
+  else if(request.isAuthenticated() && request.user.electionId === election.id){
+    return response.redirect(`/elections/${election.id}/vote`)
+  }
+  return response.redirect("/")
+};
+
 app.get(
   "/elections",
   connectEnsureLogin.ensureLoggedIn(),
@@ -188,6 +201,7 @@ app.post(
 app.get(
   "/elections/:id",
   connectEnsureLogin.ensureLoggedIn(),
+  checkElectionAuthenticated,
   async (request, response) => {
     console.log("election id :", request.params.id);
     try {
@@ -205,7 +219,7 @@ app.get(
   }
 );
 
-app.get(`/elections/:id/questions/new`, async (request, response) => {
+app.get(`/elections/:id/questions/new`, checkElectionAuthenticated, async (request, response) => {
   const election = await Election.findByPk(request.params.id);
   return response.render("newQuestion", { election: election });
 });
@@ -361,7 +375,7 @@ app.post("/voters", async (request, response) => {
   }
 });
 
-app.get("/elections/:id/preview", async (request, response) => {
+app.get("/elections/:id/preview", checkElectionAuthenticated, async (request, response) => {
   const election = await Election.findByPk(request.params.id);
   const questions = await Question.getAllQuestions(election.id);
   console.log(election, questions);
@@ -424,26 +438,33 @@ app.post(
 );
 
 const checkAuthenticated = (request, response, next) => {
-  if (request.isAuthenticated()) { return next() }
-  response.redirect(`/elections/${request.params.id}/voter-login`)
-}
-app.get("/elections/:id/vote", checkAuthenticated, async function (request, response) {
-  const election = await Election.findByPk(request.params.id);
-  const questions = await Question.getAllQuestions(election.id);
-  console.log(election, questions);
-  // console.log(request.user.id, "Hello");
-  // const voter = Voter.findByPk(request)
-  let options = {};
-  for (let i = 0; i < questions.length; i++) {
-    let questionOptions = await Option.getOptions(questions[i].id);
-    options[i] = questionOptions;
+  if (request.isAuthenticated()) {
+    return next();
   }
-  return response.render("vote", {
-    questions: questions,
-    election: election,
-    options: options,
-  });
-});
+  response.redirect(`/elections/${request.params.id}/voter-login`);
+};
+
+app.get(
+  "/elections/:id/vote",
+  checkAuthenticated,
+  async function (request, response) {
+    const election = await Election.findByPk(request.params.id);
+    const questions = await Question.getAllQuestions(election.id);
+    console.log(election, questions);
+    // console.log(request.user.id, "Hello");
+    // const voter = Voter.findByPk(request)
+    let options = {};
+    for (let i = 0; i < questions.length; i++) {
+      let questionOptions = await Option.getOptions(questions[i].id);
+      options[i] = questionOptions;
+    }
+    return response.render("vote", {
+      questions: questions,
+      election: election,
+      options: options,
+    });
+  }
+);
 
 app.get("/", function (request, response) {
   return response.render("index");

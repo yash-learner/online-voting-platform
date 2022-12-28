@@ -16,13 +16,11 @@
             Online Voting Platform
           </h1>
           <div class="mt-5">
-            <a href="/elections/<%= election.id%>"
-              ><h2 class="text-2xl font-extrabold">
+            <h2 class="text-2xl font-extrabold">
                 <%= election.electionName %>
-              </h2></a
-            >
+              </h2>
           </div>
-          <form action="" method="post">
+          <form action="/elections/:id/vote" method="post">
           <ul class="list-none">
             <% for(let i = 0; i < questions.length; i++) { %>
             <li class="question-Item">
@@ -30,23 +28,23 @@
                 class="w-fit my-2 px-2 py-1 items-center rounded hover:bg-purple-50"
               >
                 <div class="mt-5">
-                  <h3 class="text-xl font-bold">
+                  <p class="text-xl font-bold">
                     <%= i + 1%>. <%=questions[i].title%>
-                  </h3>
+                  </p>
                   <span class="text-sm font-normal"
-                    ><%=questions[i].description%> ?</span
+                    ><%=questions[i].description%> ?</
                   >
                 </div>
                   <ul class="list-none">
                     <% for(let j = 0; j < options[`${i}`].length; j++) { %>
-                    <li class="question-Item">
+                    <li class="option-Item">
                       <div
                         class="flex w-fit  px-2  items-center rounded hover:bg-purple-50"
                       >
                         <div class="mt-2">
-                          <input type="radio" name="" id="" value="<%=options[`${i}`][j].title%>">
-                          <span class="text-sm font-medium"
-                          ><%=options[`${i}`][j].title%></span
+                          <input type="radio"  name="<%=questions[i].title%>" id="<%=options[`${i}`][j].id%>" value="<%=options[`${i}`][j].id%>">
+                          <label for="<%=options[`${i}`][j].title%>" class="text-sm font-medium"
+                          ><%=options[`${i}`][j].title%></label
                         >
                         </div>
                       </div>

@@ -27,6 +27,7 @@
     <div class="grid grid-cols-6">
       <div class="col-start-3 col-span-2">
         <%- include('header.ejs', {title:"Online Voting Platform"})%>
+        <%if(election.status === true) {%>
         <div class="flex space-x-3">
           <span
             class="animate-ping absolute h-2.5 w-2.5 mt-2 p-2 rounded-full bg-red-600 opacity-100"
@@ -42,6 +43,7 @@
             >
           </div>
         </div>
+        <%}%>
         <div class="mt-5 space-x-3 flex">
           <a href="/elections"
             ><h2 class="text-2xl font-black">
@@ -87,7 +89,7 @@
                 <input type="hidden" name="status" value="false" />
                 <input type="hidden" name="id" value="<%=election.id%>" />
                 <button
-                  class="bg-green-600 text-white px-5 py-1.5 rounded font-medium mr-2"
+                  class="bg-red-600 text-white px-5 py-1.5 rounded font-medium mr-2"
                 >
                   End
                 </button>
