@@ -39,7 +39,7 @@
           <form action="/questions" method="post">
             <div class="flex gap-2">
               <div class="flex-auto">
-              <label class="mr-14" for="title">Question Title</label>
+              <label class="mr-14" for="title">Title</label>
                 <input
                   name="title"
                   type="text"
@@ -239,7 +239,7 @@
         </div>
         <div class="mt-5">
           <% if(voters.length === 0) { %>
-            <p class="mt-5">You haven't added any questions</p>
+            <p class="mt-5">You haven't added any voters</p>
           <%} else {%>
           <h3 class="text-xl font-black">Voters</h3>
           <ul>
