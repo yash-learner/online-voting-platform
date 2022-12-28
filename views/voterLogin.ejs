@@ -1,0 +1,52 @@
+<html>
+  <head>
+    <title>Login</title>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="./css/styles.css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body>
+    <div class="grid grid-cols-6">
+      <div class="col-start-3 col-span-2 py-10">
+        <h1 class="text-3xl font-semibold text-gray-600">
+          Online Voting Platform
+        </h1>
+        <hr class="my-8 h-px bg-gray-200 border-0 dark:bg-gray-700" />
+        <h2 class="text-2xl font-black">
+          <%= election.electionName %>
+        </h2>
+        <form action="" method="post">
+          <div class="py-3">
+            <label for="email">VoterID: </label>
+            <input
+              name="voterId"
+              type="text"
+              class="border border-gray-300 text-gray-900 text-sm rounded w-full p-2"
+              required
+              autofocus
+            />
+          </div>
+          <div class="py-3">
+            <label for="password">Password: </label>
+            <input
+              name="password"
+              type="password"
+              class="border border-gray-300 text-gray-900 text-sm rounded w-full p-2"
+              required
+            />
+          </div>
+          <div class="py-3">
+            <button
+              type="submit"
+              class="text-white bg-green-600 hover:bg-green-700 font-medium rounded text-sm px-5 py-2 mr-2 mb-2"
+            >
+              Sign In
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </body>
+</html>

@@ -159,7 +159,7 @@ app.post(
 
 
 
-app.get("/elections/:id", async (request, response) => {
+app.get("/elections/:id", connectEnsureLogin.ensureLoggedIn(), async (request, response) => {
   console.log("election id :", request.params.id);
   try {
     const election = await Election.findByPk(request.params.id);
@@ -189,7 +189,7 @@ app.post("/questions", async (request, response) => {
   }
 });
 
-app.get(`/elections/:id/questions/:questionId`, async (request, response) => {
+app.get(`/elections/:id/questions/:questionId`,  async (request, response) => {
   const election = await Election.findByPk(request.params.id);
   const question = await Question.findByPk(request.params.questionId);
   const options = await Option.getOptions(request.params.questionId);
@@ -299,7 +299,6 @@ app.post("/voters", async (request, response) => {
 });
 
 app.get("/elections/:id/preview", async (request, response) => {
-  // Lazy loading
   const election = await Election.findByPk(request.params.id);
   const questions = await Question.getAllQuestions(election.id);
   console.log(election,questions)
@@ -308,13 +307,35 @@ app.get("/elections/:id/preview", async (request, response) => {
     let questionOptions = await Option.getOptions(questions[i].id);
     options[i] = questionOptions;
   }
-  // console.log(options);
-  // console.log(options);
-  // console.log(options['1'][0].title);
-  // console.log(options['1'].length);
-  // console.log(options[1]);
-  // console.log(Option);
   return response.render("preview", {questions:questions, election:election, options: options});
+})
+
+app.post("/elections/start/", connectEnsureLogin.ensureLoggedIn(), async (request, response) => {
+  console.log(request.user.id, "UserId");
+  await Election.launchElection({
+    id: request.body.id,
+    userId: request.user.id,
+    status: request.body.status
+  });
+  console.log("election is launched")
+  response.redirect(`/elections/${request.body.id}`);
+});
+
+app.post("/elections/end/", connectEnsureLogin.ensureLoggedIn(), async (request, response) => {
+  console.log(request.user.id, "UserId");
+  await Election.endElection({
+    id: request.body.id,
+    userId: request.user.id,
+    status: request.body.status
+  });
+  console.log("election is launched")
+  return response.redirect(`/elections/${request.body.id}`);
+});
+
+app.get("/elections/:id/voter-login", async (request, response) => {
+  const election = await Election.findByPk(request.params.id);
+
+  return response.render("voterLogin",{election});
 })
 
 app.get("/", function (request, response) {
