@@ -298,6 +298,25 @@ app.post("/voters", async (request, response) => {
   }
 });
 
+app.get("/elections/:id/preview", async (request, response) => {
+  // Lazy loading
+  const election = await Election.findByPk(request.params.id);
+  const questions = await Question.getAllQuestions(election.id);
+  console.log(election,questions)
+  let options = {}
+  for(let i = 0; i < questions.length; i++){
+    let questionOptions = await Option.getOptions(questions[i].id);
+    options[i] = questionOptions;
+  }
+  // console.log(options);
+  // console.log(options);
+  // console.log(options['1'][0].title);
+  // console.log(options['1'].length);
+  // console.log(options[1]);
+  // console.log(Option);
+  return response.render("preview", {questions:questions, election:election, options: options});
+})
+
 app.get("/", function (request, response) {
   return response.render("index");
 });

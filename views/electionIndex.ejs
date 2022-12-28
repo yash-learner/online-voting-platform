@@ -28,12 +28,13 @@
       <div class="col-start-3 col-span-2">
         <%- include('header.ejs', {title:"Online Voting Platform"})%>
         <hr class="my-8 h-px bg-gray-200 border-0 dark:bg-gray-700">
-        <div class="mt-5">
-          <a href="/elections/"
+        <div class="mt-5 space-x-6 flex">
+          <a href="/elections"
             ><h2 class="text-2xl font-black">
               <%= election.electionName %>
             </h2></a
           >
+          <div class=""><a href="/elections/<%= election.id %>/preview/"><button class="bg-green-600 text-white px-5 py-1.5 rounded font-medium mr-2" >Preview</button></a></div>
         </div>
         <div class="flex mt-5">
           <form action="/questions" method="post">
