@@ -10,6 +10,7 @@ const connectEnsureLogin = require("connect-ensure-login");
 const session = require("express-session");
 const LocalStrategy = require("passport-local").Strategy;
 const cookieParser = require("cookie-parser");
+const { request } = require("http");
 app.use(express.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(cookieParser("shh! some secret string"));
@@ -29,7 +30,7 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
-passport.use(
+passport.use("admin-local",
   new LocalStrategy(
     {
       usernameField: "email",
@@ -47,6 +48,31 @@ passport.use(
         })
         .catch(() => {
           return done(null, false, { message: "Email Id not found" });
+        });
+    }
+  )
+);
+
+passport.use("voter-local",
+  new LocalStrategy(
+    {
+      usernameField: "voterId",
+      passwordField: "password",
+      passReqToCallback: true
+    },
+    function (request, username, password,done) {
+      console.log(request.params.id)
+      Voter.findOne({ where: { voterId: username, electionId: request.params.id } })
+        .then(async (voter) => {
+          const result = await bcrypt.compare(password, voter.password);
+          if (result) {
+            return done(null, voter);
+          } else {
+            return done(null, false, { message: "Invalid password" });
+          }
+        })
+        .catch(() => {
+          return done(null, false, { message: "Voter not found" });
         });
     }
   )
@@ -86,12 +112,14 @@ app.get("/signout", (request, response, next) => {
 
 app.post(
   "/session",
-  passport.authenticate("local", { failureRedirect: "/login" }),
+  passport.authenticate("admin-local", { failureRedirect: "/login",  failureFlash: true, }),
   function (request, response) {
     console.log(request.user);
     response.redirect("/elections");
   }
 );
+
+
 
 const saltRounds = 10;
 app.post("/users", async function (request, response) {
@@ -334,9 +362,29 @@ app.post("/elections/end/", connectEnsureLogin.ensureLoggedIn(), async (request,
 
 app.get("/elections/:id/voter-login", async (request, response) => {
   const election = await Election.findByPk(request.params.id);
-
   return response.render("voterLogin",{election});
 })
+
+app.post(
+  "/elections/:id/voter-login",
+  passport.authenticate("voter-local", { failureRedirect: "/elections/:id/voter-login" }),
+  function (request, response) {
+    console.log(request.user);
+    response.redirect(`/elections/${request.params.id}/vote`);
+  }
+);
+
+app.get("/elections/:id/vote",async function (request, response) {
+  const election = await Election.findByPk(request.params.id);
+  const questions = await Question.getAllQuestions(election.id);
+  console.log(election,questions)
+  let options = {}
+  for(let i = 0; i < questions.length; i++){
+    let questionOptions = await Option.getOptions(questions[i].id);
+    options[i] = questionOptions;
+  }
+  return response.render("vote", {questions:questions, election:election, options: options});
+});
 
 app.get("/", function (request, response) {
   return response.render("index");
