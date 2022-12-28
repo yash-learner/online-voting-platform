@@ -30,7 +30,8 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
-passport.use("admin-local",
+passport.use(
+  "admin-local",
   new LocalStrategy(
     {
       usernameField: "email",
@@ -53,16 +54,19 @@ passport.use("admin-local",
   )
 );
 
-passport.use("voter-local",
+passport.use(
+  "voter-local",
   new LocalStrategy(
     {
       usernameField: "voterId",
       passwordField: "password",
-      passReqToCallback: true
+      passReqToCallback: true,
     },
-    function (request, username, password,done) {
-      console.log(request.params.id)
-      Voter.findOne({ where: { voterId: username, electionId: request.params.id } })
+    function (request, username, password, done) {
+      console.log(request.params.id);
+      Voter.findOne({
+        where: { voterId: username, electionId: request.params.id },
+      })
         .then(async (voter) => {
           const result = await bcrypt.compare(password, voter.password);
           if (result) {
@@ -80,17 +84,12 @@ passport.use("voter-local",
 
 passport.serializeUser(function (user, done) {
   console.log("Serializing user in session: ", user.id);
-  done(null, user.id);
+  done(null, user);
 });
 
-passport.deserializeUser(function (id, done) {
-  User.findByPk(id)
-    .then((user) => {
-      done(null, user);
-    })
-    .catch((error) => {
-      done(error, null);
-    });
+passport.deserializeUser(function (user, done) {
+  console.log(user, "dese");
+  done(null, user);
 });
 
 app.get("/signup", (request, response) => {
@@ -112,14 +111,15 @@ app.get("/signout", (request, response, next) => {
 
 app.post(
   "/session",
-  passport.authenticate("admin-local", { failureRedirect: "/login",  failureFlash: true, }),
+  passport.authenticate("admin-local", {
+    failureRedirect: "/login",
+    failureFlash: true,
+  }),
   function (request, response) {
     console.log(request.user);
     response.redirect("/elections");
   }
 );
-
-
 
 const saltRounds = 10;
 app.post("/users", async function (request, response) {
@@ -185,69 +185,95 @@ app.post(
   }
 );
 
-
-
-app.get("/elections/:id", connectEnsureLogin.ensureLoggedIn(), async (request, response) => {
-  console.log("election id :", request.params.id);
-  try {
-    const election = await Election.findByPk(request.params.id);
-    const questions = await Question.getAllQuestions(election.id);
-    const voters = await Voter.getAllVoters(election.id);
-    response.render("electionIndex", { election: election, questions: questions, voters: voters });
-  } catch (error) {
-    return response.status(422).json(error);
+app.get(
+  "/elections/:id",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (request, response) => {
+    console.log("election id :", request.params.id);
+    try {
+      const election = await Election.findByPk(request.params.id);
+      const questions = await Question.getAllQuestions(election.id);
+      const voters = await Voter.getAllVoters(election.id);
+      response.render("electionIndex", {
+        election: election,
+        questions: questions,
+        voters: voters,
+      });
+    } catch (error) {
+      return response.status(422).json(error);
+    }
   }
-});
+);
 
 app.get(`/elections/:id/questions/new`, async (request, response) => {
   const election = await Election.findByPk(request.params.id);
-  return response.render("newQuestion", {election:election})
-})
+  return response.render("newQuestion", { election: election });
+});
 
 app.post("/questions", async (request, response) => {
   try {
     await Question.create({
       title: request.body.title,
       description: request.body.description,
-      electionId: request.body.electionId
+      electionId: request.body.electionId,
     });
-    return response.redirect(`/elections/${request.body.electionId}`)
+    return response.redirect(`/elections/${request.body.electionId}`);
   } catch (error) {
     return response.status(422).json(error);
   }
 });
 
-app.get(`/elections/:id/questions/:questionId`,  async (request, response) => {
+app.get(`/elections/:id/questions/:questionId`, async (request, response) => {
   const election = await Election.findByPk(request.params.id);
   const question = await Question.findByPk(request.params.questionId);
   const options = await Option.getOptions(request.params.questionId);
   console.log(options, "Options");
-  return response.render("questionIndex", {election: election, question: question, options: options});
+  return response.render("questionIndex", {
+    election: election,
+    question: question,
+    options: options,
+  });
 });
 
-app.get(`/elections/:id/questions/:id/options/new`, async (request, response) => {
-  response.render("newOption",)
-});
+app.get(
+  `/elections/:id/questions/:id/options/new`,
+  async (request, response) => {
+    response.render("newOption");
+  }
+);
 
-app.get("/elections/:electionId/questions/:questionId/options/:id", async (request, response) => {
-  console.log(request.params.electionId);
-  const election = await Election.findByPk(request.params.electionId);
-  const question = await Question.findByPk(request.params.questionId);
-  const option = await Option.findByPk(request.params.id);
-  console.log(election, question, option);
-  return response.render("editOption",{election: election, question: question, option: option});
-})
+app.get(
+  "/elections/:electionId/questions/:questionId/options/:id",
+  async (request, response) => {
+    console.log(request.params.electionId);
+    const election = await Election.findByPk(request.params.electionId);
+    const question = await Question.findByPk(request.params.questionId);
+    const option = await Option.findByPk(request.params.id);
+    console.log(election, question, option);
+    return response.render("editOption", {
+      election: election,
+      question: question,
+      option: option,
+    });
+  }
+);
 
 app.put("/options/:id", async (request, response) => {
   try {
-    console.log(request.body.title,request.body.electionId,request.body.questionId);
+    console.log(
+      request.body.title,
+      request.body.electionId,
+      request.body.questionId
+    );
     await Option.editTitle(request.params.id, request.body.title);
     // return response.send(200);
-    return response.redirect(`/elections/${request.body.electionId}/questions/${request.body.questionId}`);
+    return response.redirect(
+      `/elections/${request.body.electionId}/questions/${request.body.questionId}`
+    );
   } catch (error) {
     return response.status(422).json(error);
   }
-})
+});
 
 app.delete("/questions/:id", async (request, response) => {
   connectEnsureLogin.ensureLoggedIn();
@@ -273,28 +299,37 @@ app.post("/options", async (request, response) => {
   try {
     await Option.create({
       title: request.body.title,
-      questionId: request.body.questionId
-    })
-    console.log("Option Added",request.body.electionId );
-    response.redirect(`/elections/${request.body.electionId}/questions/${request.body.questionId}`)
+      questionId: request.body.questionId,
+    });
+    console.log("Option Added", request.body.electionId);
+    response.redirect(
+      `/elections/${request.body.electionId}/questions/${request.body.questionId}`
+    );
   } catch (error) {
     return response.status(422).json(error);
   }
-})
+});
 
-app.get("/elections/:electionId/questions/:id/edit", async (request, response) => {
-  const election = await Election.findByPk(request.params.electionId);
-  const question = await Question.findByPk(request.params.id);
-  response.render("editQuestion", {election, question});
-})
+app.get(
+  "/elections/:electionId/questions/:id/edit",
+  async (request, response) => {
+    const election = await Election.findByPk(request.params.electionId);
+    const question = await Question.findByPk(request.params.id);
+    response.render("editQuestion", { election, question });
+  }
+);
 
 app.put("/questions/:id", async (request, response) => {
   try {
-    await Question.editQuestion(request.params.id, request.body.title, request.body.description);
+    await Question.editQuestion(
+      request.params.id,
+      request.body.title,
+      request.body.description
+    );
   } catch (error) {
     return response.status(422).json(error);
   }
-})
+});
 
 app.get("/elections/new", (request, response) => {
   return response.render("newElection");
@@ -317,10 +352,10 @@ app.post("/voters", async (request, response) => {
     await Voter.addVoter({
       voterId: request.body.voterId,
       password: hashedPwd,
-      electionId: request.body.electionId
-    })
-    console.log("Voter Added",request.body.electionId );
-    response.redirect(`/elections/${request.body.electionId}/`)
+      electionId: request.body.electionId,
+    });
+    console.log("Voter Added", request.body.electionId);
+    response.redirect(`/elections/${request.body.electionId}/`);
   } catch (error) {
     return response.status(422).json(error);
   }
@@ -329,61 +364,85 @@ app.post("/voters", async (request, response) => {
 app.get("/elections/:id/preview", async (request, response) => {
   const election = await Election.findByPk(request.params.id);
   const questions = await Question.getAllQuestions(election.id);
-  console.log(election,questions)
-  let options = {}
-  for(let i = 0; i < questions.length; i++){
+  console.log(election, questions);
+  let options = {};
+  for (let i = 0; i < questions.length; i++) {
     let questionOptions = await Option.getOptions(questions[i].id);
     options[i] = questionOptions;
   }
-  return response.render("preview", {questions:questions, election:election, options: options});
-})
-
-app.post("/elections/start/", connectEnsureLogin.ensureLoggedIn(), async (request, response) => {
-  console.log(request.user.id, "UserId");
-  await Election.launchElection({
-    id: request.body.id,
-    userId: request.user.id,
-    status: request.body.status
+  return response.render("preview", {
+    questions: questions,
+    election: election,
+    options: options,
   });
-  console.log("election is launched")
-  response.redirect(`/elections/${request.body.id}`);
 });
 
-app.post("/elections/end/", connectEnsureLogin.ensureLoggedIn(), async (request, response) => {
-  console.log(request.user.id, "UserId");
-  await Election.endElection({
-    id: request.body.id,
-    userId: request.user.id,
-    status: request.body.status
-  });
-  console.log("election is launched")
-  return response.redirect(`/elections/${request.body.id}`);
-});
+app.post(
+  "/elections/start/",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (request, response) => {
+    console.log(request.user.id, "UserId");
+    await Election.launchElection({
+      id: request.body.id,
+      userId: request.user.id,
+      status: request.body.status,
+    });
+    console.log("election is launched");
+    response.redirect(`/elections/${request.body.id}`);
+  }
+);
+
+app.post(
+  "/elections/end/",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (request, response) => {
+    console.log(request.user.id, "UserId");
+    await Election.endElection({
+      id: request.body.id,
+      userId: request.user.id,
+      status: request.body.status,
+    });
+    console.log("election is launched");
+    return response.redirect(`/elections/${request.body.id}`);
+  }
+);
 
 app.get("/elections/:id/voter-login", async (request, response) => {
   const election = await Election.findByPk(request.params.id);
-  return response.render("voterLogin",{election});
-})
+  return response.render("voterLogin", { election });
+});
 
 app.post(
   "/elections/:id/voter-login",
-  passport.authenticate("voter-local", { failureRedirect: "/elections/:id/voter-login" }),
+  passport.authenticate("voter-local", {
+    failureRedirect: "/elections/:id/voter-login",
+  }),
   function (request, response) {
-    console.log(request.user);
+    console.log("Hello", request.user);
     response.redirect(`/elections/${request.params.id}/vote`);
   }
 );
 
-app.get("/elections/:id/vote",async function (request, response) {
+const checkAuthenticated = (request, response, next) => {
+  if (request.isAuthenticated()) { return next() }
+  response.redirect(`/elections/${request.params.id}/voter-login`)
+}
+app.get("/elections/:id/vote", checkAuthenticated, async function (request, response) {
   const election = await Election.findByPk(request.params.id);
   const questions = await Question.getAllQuestions(election.id);
-  console.log(election,questions)
-  let options = {}
-  for(let i = 0; i < questions.length; i++){
+  console.log(election, questions);
+  // console.log(request.user.id, "Hello");
+  // const voter = Voter.findByPk(request)
+  let options = {};
+  for (let i = 0; i < questions.length; i++) {
     let questionOptions = await Option.getOptions(questions[i].id);
     options[i] = questionOptions;
   }
-  return response.render("vote", {questions:questions, election:election, options: options});
+  return response.render("vote", {
+    questions: questions,
+    election: election,
+    options: options,
+  });
 });
 
 app.get("/", function (request, response) {
