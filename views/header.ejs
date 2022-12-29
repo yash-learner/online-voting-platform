@@ -1,17 +1,28 @@
-<div class="flex p-2 m-2">
-  <div class="flex-auto">
-    <h1 class="text-3xl font-semibold text-gray-600">
-        <%= title%>
-    </h1>
+<nav class="w-auto mt-2 bg-white border-gray-200 dark:bg-gray-900 dark:border-gray-700">
+  <div class="p-2">
+    <div class="flex-auto">
+      <h1 class="text-center text-3xl font-semibold text-gray-600">
+          <%= title%>
+      </h1>
+    </div>
   </div>
-  <div class="flex-end">
-    <button
-      type="button"
-      class="bg-red-600 text-white px-2 py-1.5 rounded font-small"
-    >
-      <a href="/signout"><p class="text-end">Sign Out</p></a>
-    </button>
+  <div class="flex w-auto gap-4 p-2  justify-center">
+    <div class="">
+      <button
+        type="button"
+        class="dark:bg-gray-700 text-white px-2 py-2 rounded font-small"
+      >
+        <a href="/elections/"><p class="text-end">Home</p></a>
+      </button>
+    </div>
+    <div class="">
+      <button
+        type="button"
+        class="flex-auto bg-red-700 text-white px-2 py-2 rounded font-small"
+      >
+        <a href="/signout"><p class="text-end">Sign Out</p></a>
+      </button>
+    </div>
   </div>
-</div>
-<hr class="my-8 h-px bg-gray-200 border-0 dark:bg-gray-700" />
-
+</nav>
+<hr class="my-5 h-px bg-gray-200 border-0 dark:bg-gray-700" />

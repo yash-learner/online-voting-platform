@@ -313,6 +313,7 @@ app.post("/options", async (request, response) => {
     await Option.create({
       title: request.body.title,
       questionId: request.body.questionId,
+      count : 0
     });
     console.log("Option Added", request.body.electionId);
     response.redirect(
@@ -482,6 +483,16 @@ app.post("/elections/:id/vote", async (request, response) => {
 
 })
 
+app.get("/elections/:id/results", async (request, response) => {
+  const election = await Election.findByPk(request.params.id);
+  const questions = await Question.getAllQuestions(election.id);
+  let options = {};
+  for (let i = 0; i < questions.length; i++) {
+    let questionOptions = await Option.getOptionsForResults(questions[i].id);
+    options[i] = questionOptions;
+  }
+  response.render("results", {election,questions,options});
+})
 app.get("/", function (request, response) {
   return response.render("index");
 });

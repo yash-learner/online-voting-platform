@@ -23,7 +23,7 @@
       }
     </script>
   </head>
-  <body>
+  <body class="bg-gray-500">
     <div class="grid grid-cols-6">
       <div class="col-start-3 col-span-2">
         <%- include('header.ejs', {title:"Online Voting Platform"})%>
@@ -74,7 +74,7 @@
           <%} else {%>
 
             <div class="">
-              <form action="/elections/start" method="post">
+              <form action="/elections/<%=election.id%>/results" method="get">
                 <input type="hidden" name="status" value="true" />
                 <input type="hidden" name="id" value="<%=election.id%>" />
                 <button
@@ -155,7 +155,7 @@
                 <label
                   title="<%=questions[i].description%>"
                   for="question-checkbox-<%= questions[i].id %>"
-                  class="ml-2 text-sm text-gray-600 cursor-pointer"
+                  class="ml-2 text-lg font-normal text-black-600 cursor-pointer"
                   ><%= questions[i].title %></label
                 >
               </a>
@@ -219,7 +219,7 @@
               <label
                 title="<%=questions[i].description%>"
                 for="question-checkbox-<%= questions[i].id %>"
-                class="ml-2 text-sm text-gray-600 cursor-pointer"
+                class="ml-2 text-lg font-normal text-black-600 cursor-pointer"
                 ><%= questions[i].title %></label
               >
               <% } %>

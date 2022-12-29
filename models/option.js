@@ -22,6 +22,16 @@ module.exports = (sequelize, DataTypes) => {
       });
       return options;
     }
+
+    static async getOptionsForResults(questionId) {
+      const options = Option.findAll({
+        where: {
+          questionId,
+        },
+        order: [["count", "DESC"]],
+      });
+      return options;
+    }
     static async editTitle(id, title) {
       option = await Option.update(
         { title: title },
