@@ -165,15 +165,16 @@ app.get(
   "/elections",
   connectEnsureLogin.ensureLoggedIn(),
   async (request, response) => {
+    const userName = request.user.firstName
     const loggedInUser = request.user;
     const liveElections = await Election.live(loggedInUser.id);
     const upcoming = await Election.upcoming(loggedInUser.id);
     const completed = await Election.completed(loggedInUser.id);
     console.log(upcoming);
     if (request.accepts("html")) {
-      response.render("elections", { liveElections, upcoming, completed });
+      response.render("elections", { liveElections, upcoming, completed, userName });
     } else {
-      response.json({ liveElections, upcoming, completed });
+      response.json({ liveElections, upcoming, completed, });
     }
   }
 );
@@ -211,6 +212,7 @@ app.get(
         election: election,
         questions: questions,
         voters: voters,
+        userName: request.user.firstName
       });
     } catch (error) {
       return response.status(422).json(error);
@@ -245,13 +247,14 @@ app.get(`/elections/:id/questions/:questionId`, async (request, response) => {
     election: election,
     question: question,
     options: options,
+    userName: request.user.firstName
   });
 });
 
 app.get(
   `/elections/:id/questions/:id/options/new`,
   async (request, response) => {
-    response.render("newOption");
+    response.render("newOption", {userName: request.user.firstName});
   }
 );
 
@@ -267,6 +270,7 @@ app.get(
       election: election,
       question: question,
       option: option,
+      userName: request.user.firstName
     });
   }
 );
@@ -329,7 +333,7 @@ app.get(
   async (request, response) => {
     const election = await Election.findByPk(request.params.electionId);
     const question = await Question.findByPk(request.params.id);
-    response.render("editQuestion", { election, question });
+    response.render("editQuestion", { election, question,userName: request.user.firstName });
   }
 );
 
@@ -491,7 +495,7 @@ app.get("/elections/:id/results", async (request, response) => {
     let questionOptions = await Option.getOptionsForResults(questions[i].id);
     options[i] = questionOptions;
   }
-  response.render("results", {election,questions,options});
+  response.render("results", {election,questions,options,userName: request.user.firstName});
 })
 app.get("/", function (request, response) {
   return response.render("index");

@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title><%= election.electionName %></title>
-    <link rel="stylesheet" href="./css/styles.css" />
+    <link rel="stylesheet" src=="./css/styles.css"/>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
       function deleteQuestion(id) {
@@ -23,12 +23,12 @@
       }
     </script>
   </head>
-  <body class="bg-gray-500">
+  <body class="bg-gray-500 font-mono">
+    <%- include('header.ejs', {title:"Online Voting Platform"})%>
     <div class="grid grid-cols-6">
       <div class="col-start-3 col-span-2">
-        <%- include('header.ejs', {title:"Online Voting Platform"})%>
         <%if(election.status === true) {%>
-        <div class="flex space-x-3">
+        <div class="flex space-x-3 p-2">
           <span
             class="animate-ping absolute h-2.5 w-2.5 mt-2 p-2 rounded-full bg-red-600 opacity-100"
           ></span>
@@ -44,9 +44,9 @@
           </div>
         </div>
         <%}%>
-        <div class="mt-5 space-x-3 flex">
+        <div class="mt-5 space-x-3 flex p-2">
           <a href="/elections"
-            ><h2 class="text-2xl font-black">
+            ><h2 class=" text-2xl font-black">
               <%= election.electionName %>
             </h2></a
           >

@@ -1,7 +1,6 @@
 body {
-  color: grey;
+  /* color: grey; */
   font-family: "Courier New", Courier, monospace;
-  background-color: white;
 }
 
 .Election-Item:hover .trash-icon {
