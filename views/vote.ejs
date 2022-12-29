@@ -17,46 +17,62 @@
           </h1>
           <div class="mt-5">
             <h2 class="text-2xl font-extrabold">
-                <%= election.electionName %>
-              </h2>
+              <%= election.electionName %>
+            </h2>
           </div>
-          <form action="/elections/:id/vote" method="post">
-          <ul class="list-none">
-            <% for(let i = 0; i < questions.length; i++) { %>
-            <li class="question-Item">
-              <div
-                class="w-fit my-2 px-2 py-1 items-center rounded hover:bg-purple-50"
-              >
-                <div class="mt-5">
-                  <p class="text-xl font-bold">
-                    <%= i + 1%>. <%=questions[i].title%>
-                  </p>
-                  <span class="text-sm font-normal"
-                    ><%=questions[i].description%> ?</
-                  >
-                </div>
+          <%if(voter.voted === false) {%>
+          <form action="/elections/<%= election.id %>/vote" method="post">
+            <ul class="list-none">
+              <% for(let i = 0; i < questions.length; i++) { %>
+              <li class="question-Item">
+                <div
+                  class="w-fit my-2 px-2 py-1 items-center rounded hover:bg-purple-50"
+                >
+                  <div class="mt-5">
+                    <p class="text-xl font-bold">
+                      <%= i + 1%>. <%=questions[i].title%>
+                    </p>
+                    <span class="text-sm font-normal"
+                      ><%=questions[i].description%> ?</span
+                    >
+                  </div>
                   <ul class="list-none">
                     <% for(let j = 0; j < options[`${i}`].length; j++) { %>
                     <li class="option-Item">
                       <div
-                        class="flex w-fit  px-2  items-center rounded hover:bg-purple-50"
+                        class="flex w-fit px-2 items-center rounded hover:bg-purple-50"
                       >
                         <div class="mt-2">
-                          <input type="radio"  name="<%=questions[i].title%>" id="<%=options[`${i}`][j].id%>" value="<%=options[`${i}`][j].id%>">
-                          <label for="<%=options[`${i}`][j].title%>" class="text-sm font-medium"
-                          ><%=options[`${i}`][j].title%></label
-                        >
+                          <input
+                            type="radio"
+                            name="<%=questions[i].id%>"
+                            id="<%=options[`${i}`][j].id%>"
+                            value="<%=options[`${i}`][j].id%>"
+                          />
+                          <label
+                            for="<%=options[`${i}`][j].id%>"
+                            class="text-sm font-medium"
+                            ><%=options[`${i}`][j].title%></label
+                          >
                         </div>
                       </div>
                     </li>
                     <% } %>
                   </ul>
-              </div>
-            </li>
-            <% } %>
-          </ul>
-          <button type="submit" class="ml-20 mt-4 text-white bg-green-600 hover:bg-green-700 font-medium rounded text-sm px-5 py-2 mr-2 mb-2">Vote</button>
-        </form>
+                </div>
+              </li>
+              <% } %>
+            </ul>
+            <button
+              type="submit"
+              class="ml-20 mt-4 text-white bg-green-600 hover:bg-green-700 font-medium rounded text-sm px-5 py-2 mr-2 mb-2"
+            >
+              Vote
+            </button>
+          </form>
+          <%} else {%>
+          <p>Thank You! Your vote has been saved.</p>
+          <%}%>
         </div>
       </div>
     </div>

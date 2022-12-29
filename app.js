@@ -10,7 +10,6 @@ const connectEnsureLogin = require("connect-ensure-login");
 const session = require("express-session");
 const LocalStrategy = require("passport-local").Strategy;
 const cookieParser = require("cookie-parser");
-const { request } = require("http");
 app.use(express.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(cookieParser("shh! some secret string"));
@@ -451,7 +450,7 @@ app.get(
     const election = await Election.findByPk(request.params.id);
     const questions = await Question.getAllQuestions(election.id);
     console.log(election, questions);
-    // console.log(request.user.id, "Hello");
+    console.log(request.user, "Hello");
     // const voter = Voter.findByPk(request)
     let options = {};
     for (let i = 0; i < questions.length; i++) {
@@ -462,9 +461,26 @@ app.get(
       questions: questions,
       election: election,
       options: options,
+      voter:  request.user
     });
   }
 );
+
+app.post("/elections/:id/vote", async (request, response) => {
+  console.log(request.body, "request");
+  const election = await Election.findByPk(request.params.id);
+  const options = Object.values(request.body).map((count) => parseInt(count));
+  console.log(options);
+  for(let i = 0; i < options.length; i++){
+    await Option.updateOptionCount(options[i]);
+      const option = await Option.findByPk(options[i])
+      console.log("Option count", option.count);
+  }
+  await Voter.updateVotedStatus(true, request.user.id);
+  const voter = await Voter.findByPk(request.user.id)
+  response.render("vote", {voter:  voter, election: election,})
+
+})
 
 app.get("/", function (request, response) {
   return response.render("index");

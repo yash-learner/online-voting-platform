@@ -33,10 +33,17 @@ module.exports = (sequelize, DataTypes) => {
       );
       console.log(option);
     }
+
+    static async updateOptionCount(optionId) {
+      console.log("Inside model", optionId)
+      const option = await Option.findByPk(optionId);
+      return await option.increment('count',{by: 1});
+    }
+
     static async deleteOption(id) {
       return this.destroy({
         where: {
-          id
+          id,
         },
       });
     }
@@ -45,6 +52,7 @@ module.exports = (sequelize, DataTypes) => {
     {
       title: DataTypes.STRING,
       questionId: DataTypes.INTEGER,
+      count: DataTypes.INTEGER,
     },
     {
       sequelize,

@@ -1,7 +1,5 @@
-'use strict';
-const {
-  Model
-} = require('sequelize');
+"use strict";
+const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class Voter extends Model {
     /**
@@ -23,28 +21,42 @@ module.exports = (sequelize, DataTypes) => {
         password: password,
         voted: false,
         electionId: electionId,
-        voterIdPlusElectionId: voterId+electionId
+        voterIdPlusElectionId: voterId + electionId,
       });
     }
 
     static async getAllVoters(electionId) {
       return Voter.findAll({
         where: {
-          electionId: electionId
+          electionId: electionId,
         },
         order: [["id", "ASC"]],
       });
     }
+
+    static async updateVotedStatus(voted, id) {
+      return await Voter.update(
+        { voted: voted },
+        {
+          where: {
+            id,
+          },
+        }
+      );
+    }
   }
-  Voter.init({
-    voterId: DataTypes.STRING,
-    password: DataTypes.STRING,
-    voted: DataTypes.BOOLEAN,
-    electionId: DataTypes.INTEGER,
-    voterIdPlusElectionId: DataTypes.STRING
-  }, {
-    sequelize,
-    modelName: 'Voter',
-  });
+  Voter.init(
+    {
+      voterId: DataTypes.STRING,
+      password: DataTypes.STRING,
+      voted: DataTypes.BOOLEAN,
+      electionId: DataTypes.INTEGER,
+      voterIdPlusElectionId: DataTypes.STRING,
+    },
+    {
+      sequelize,
+      modelName: "Voter",
+    }
+  );
   return Voter;
 };
