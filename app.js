@@ -337,6 +337,26 @@ app.get(
   }
 );
 
+app.get(
+  "/elections/:id/edit",
+  async (request, response) => {
+    const election = await Election.findByPk(request.params.id);
+    response.render("editElectionName", { election, userName: request.user.firstName });
+  }
+);
+
+app.put("/elections/:id", async (request, response) => {
+  try {
+    console.log("update election name", request.body.title);
+    await Election.editElectionName(request.params.id, request.body.title, request.user.id);
+    return response.redirect(
+      `/elections`
+    );
+  } catch (error) {
+    return response.status(422).json(error);
+  }
+});
+
 app.put("/questions/:id", async (request, response) => {
   try {
     await Question.editQuestion(
@@ -498,7 +518,11 @@ app.get("/elections/:id/results", async (request, response) => {
   response.render("results", {election,questions,options,userName: request.user.firstName});
 })
 app.get("/", function (request, response) {
+  if (request.user === undefined) {
   return response.render("index");
+} else {
+  response.redirect("/elections");
+}
 });
 
 module.exports = app;

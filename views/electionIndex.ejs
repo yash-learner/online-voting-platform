@@ -32,7 +32,7 @@
           <span
             class="animate-ping absolute h-2.5 w-2.5 mt-2 p-2 rounded-full bg-red-600 opacity-100"
           ></span>
-          <h3 class="ml-2 text-xl font-semibold ">Election is Live</h3>
+          <h3 class="ml-2 text-xl font-semibold">Election is Live</h3>
           <div class="">
             <a href="/elections/<%= election.id %>/vote/"
               ><button
@@ -46,7 +46,7 @@
         <%}%>
         <div class="mt-5 space-x-3 flex p-2">
           <a href="/elections"
-            ><h2 class=" text-2xl font-black">
+            ><h2 class="text-2xl font-black">
               <%= election.electionName %>
             </h2></a
           >
@@ -73,28 +73,28 @@
           </div>
           <%} else {%>
 
-            <div class="">
-              <form action="/elections/<%=election.id%>/results" method="get">
-                <input type="hidden" name="status" value="true" />
-                <input type="hidden" name="id" value="<%=election.id%>" />
-                <button
-                  class="bg-green-600 text-white px-5 py-1.5 rounded font-medium mr-2"
-                >
-                  Result
-                </button>
-              </form>
-            </div>
-            <div class="">
-              <form action="/elections/end" method="post">
-                <input type="hidden" name="status" value="false" />
-                <input type="hidden" name="id" value="<%=election.id%>" />
-                <button
-                  class="bg-red-600 text-white px-5 py-1.5 rounded font-medium mr-2"
-                >
-                  End
-                </button>
-              </form>
-            </div>
+          <div class="">
+            <form action="/elections/<%=election.id%>/results" method="get">
+              <input type="hidden" name="status" value="true" />
+              <input type="hidden" name="id" value="<%=election.id%>" />
+              <button
+                class="bg-green-600 text-white px-5 py-1.5 rounded font-medium mr-2"
+              >
+                Result
+              </button>
+            </form>
+          </div>
+          <div class="">
+            <form action="/elections/end" method="post">
+              <input type="hidden" name="status" value="false" />
+              <input type="hidden" name="id" value="<%=election.id%>" />
+              <button
+                class="bg-red-600 text-white px-5 py-1.5 rounded font-medium mr-2"
+              >
+                End
+              </button>
+            </form>
+          </div>
           <% } %>
         </div>
         <div class="flex mt-5">
@@ -319,11 +319,14 @@
             <% for(let i = 0; i < voters.length; i++ ) {%>
             <li>
               <div
-                class="flex w-fit my-2 px-2 py-1 items-center rounded hover:bg-purple-50"
+                class="flex  my-2 px-2 py-1 items-center rounded hover:bg-purple-50"
               >
-                <span class="ml-2 text-sm text-black-800 cursor-pointer"
-                  ><%= voters[i].voterId %></span
-                >
+                <div class="w-10">
+                  <span class=" text-sm text-black-800 cursor-pointer"
+                    ><%= voters[i].voterId %></span
+                  >
+                </div>
+
                 <a href="" class="block ml-2">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -360,6 +363,9 @@
                     />
                   </svg>
                 </a>
+                <%if(voters[i].voted === true) {%>
+                <span class="ml-2 pl-2">Voted</span>
+                <%}%>
               </div>
             </li>
             <%}%>

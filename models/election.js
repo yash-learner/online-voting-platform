@@ -102,6 +102,19 @@ module.exports = (sequelize, DataTypes) => {
         }
       );
     }
+
+    static async editElectionName(id, title, userId) {
+      question = await Election.update(
+        { electionName: title},
+        {
+          where: {
+            id,
+            userId,
+          },
+        }
+      );
+      console.log(question);
+    }
   }
   Election.init(
     {
