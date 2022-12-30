@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title><%= election.electionName %> | Result</title>
+    <link rel="stylesheet" href="./css/styles.css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="bg-gray-500 font-mono">
+    <div class="grid grid-cols-6">
+      <div class="col-start-3 col-span-2 py-5">
+        <div class="mt-5 flex-auto">
+          <h1 class="text-4xl font-semibold text-gray-900 mb-2">
+            Online Voting Platform
+          </h1>
+          <a href=""
+            ><h2 class="text-2xl font-black ml-1">
+              <%= election.electionName%> Result's
+            </h2></a
+          >
+          <div class="flex gap-2 p-1 m-1">
+            <span>Total Voters: </span>
+            <span class="text-white"><%= votersCount %></span>
+            <span> | </span>
+            <span>Casted Voters: </span>
+            <span class="text-white"><%= castedVotersCount %></span>
+          </div>
+        </div>
+        <ul class="list-none pl-2">
+          <% for(let i = 0; i < questions.length; i++) { %>
+          <li class="question-Item">
+            <div
+              class="w-fit my-2 px-2 py-1 items-center rounded hover:bg-purple-50"
+            >
+              <div class="mt-5">
+                <h3 class="text-xl font-bold">
+                  <%= i + 1%>. <%=questions[i].title%>
+                </h3>
+                <span class="text-sm font-normal"
+                  ><%=questions[i].description%> ?</span
+                >
+              </div>
+              <div class="overflow-x-auto relative rounded-md mt-2">
+                <table
+                  class="w-full text-sm text-left text-gray-500 dark:text-gray-400"
+                >
+                  <thead
+                    class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400"
+                  >
+                    <tr>
+                      <th scope="col" class="py-3 px-6">Option</th>
+                      <th scope="col" class="py-3 px-6">Votes Count</th>
+                      <th scope="col" class="py-3 px-6">Position</th>
+                    </tr>
+                  </thead>
+                  <% for(let j = 0; j < options[`${i}`].length; j++) { %>
+                  <tbody>
+                    <tr
+                      class="bg-white border-b dark:bg-gray-800 dark:border-gray-700"
+                    >
+                      <th
+                        scope="row"
+                        class="py-4 px-6 font-medium text-gray-900 whitespace-nowrap dark:text-white"
+                      >
+                        <%= options[`${i}`][j].title %>
+                      </th>
+                      <td class="py-4 px-6"><%= options[`${i}`][j].count %></td>
+                      <td class="py-4 px-6"><%= j + 1 %></td>
+                    </tr>
+                  </tbody>
+                  <% } %>
+                </table>
+              </div>
+            </div>
+          </li>
+          <% } %>
+        </ul>
+      </div>
+    </div>
+  </body>
+</html>

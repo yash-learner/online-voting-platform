@@ -486,8 +486,11 @@ app.post(
   }
 );
 
-const checkAuthenticated = (request, response, next) => {
-  if (request.isAuthenticated()) {
+const checkAuthenticated = async(request, response, next) => {
+  const election = await Election.findByPk(request.params.id);
+  if (election.status === true && request.isAuthenticated()) {
+    return next();
+  } else if(election.status === false) {
     return next();
   }
   response.redirect(`/elections/${request.params.id}/voter-login`);
@@ -499,13 +502,23 @@ app.get(
   async function (request, response) {
     const election = await Election.findByPk(request.params.id);
     const questions = await Question.getAllQuestions(election.id);
+    const votersCount = await Voter.getVotersCount(election.id);
+    const castedVotersCount = await Voter.getCastedVotersCount(election.id);
     console.log(election, questions);
     console.log(request.user, "Hello");
-    // const voter = Voter.findByPk(request)
     let options = {};
     for (let i = 0; i < questions.length; i++) {
       let questionOptions = await Option.getOptions(questions[i].id);
       options[i] = questionOptions;
+    }
+    if (election.status === false) {
+      return response.render("publicResult", {
+        questions: questions,
+        election: election,
+        options: options,
+        votersCount,
+        castedVotersCount
+      });
     }
     return response.render("vote", {
       questions: questions,

@@ -20,7 +20,7 @@
               <%= election.electionName %>
             </h2>
           </div>
-          <%if(voter.voted === false) {%>
+          <%if(voter.voted === false && election.status === true) {%>
           <form action="/elections/<%= election.id %>/vote" method="post">
             <ul class="list-none">
               <% for(let i = 0; i < questions.length; i++) { %>
