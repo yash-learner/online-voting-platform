@@ -1,7 +1,5 @@
-'use strict';
-const {
-  Model
-} = require('sequelize');
+"use strict";
+const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class Question extends Model {
     /**
@@ -25,7 +23,7 @@ module.exports = (sequelize, DataTypes) => {
     static async getAllQuestions(electionId) {
       return Question.findAll({
         where: {
-          electionId: electionId
+          electionId: electionId,
         },
         order: [["id", "ASC"]],
       });
@@ -46,19 +44,29 @@ module.exports = (sequelize, DataTypes) => {
     static async deleteQuestion(id) {
       return this.destroy({
         where: {
-          id
+          id,
         },
       });
     }
 
+    static async checkForAtleastOneQuestion(id) {
+      return Question.count({
+        where: {
+          electionId: id,
+        },
+      });
+    }
   }
-  Question.init({
-    title: DataTypes.STRING,
-    description: DataTypes.STRING,
-    electionId: DataTypes.INTEGER
-  }, {
-    sequelize,
-    modelName: 'Question',
-  });
+  Question.init(
+    {
+      title: DataTypes.STRING,
+      description: DataTypes.STRING,
+      electionId: DataTypes.INTEGER,
+    },
+    {
+      sequelize,
+      modelName: "Question",
+    }
+  );
   return Question;
 };

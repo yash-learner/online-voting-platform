@@ -44,6 +44,14 @@ module.exports = (sequelize, DataTypes) => {
       console.log(option);
     }
 
+    static async checkForAtleastTwoOptions(id) {
+      return Option.count({
+        where: {
+          questionId: id,
+        },
+      });
+    }
+
     static async updateOptionCount(optionId) {
       console.log("Inside model", optionId)
       const option = await Option.findByPk(optionId);

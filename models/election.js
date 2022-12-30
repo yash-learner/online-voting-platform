@@ -1,5 +1,6 @@
 "use strict";
 const { Model } = require("sequelize");
+
 module.exports = (sequelize, DataTypes) => {
   class Election extends Model {
     /**
@@ -29,8 +30,6 @@ module.exports = (sequelize, DataTypes) => {
         userId,
       });
     }
-
-
 
     static async allElections(userId) {
       const elections = await Election.findAll();
@@ -70,6 +69,17 @@ module.exports = (sequelize, DataTypes) => {
       return elections;
     }
 
+    static async getQuestions(electionId) {
+      const elections = await Election.findAll({
+        where: {
+          id:electionId,
+        },
+        include: Model.Question,
+        order: [["id", "ASC"]],
+      });
+      return elections;
+    }
+
     static async deleteElection(id, userId) {
       return this.destroy({
         where: {
@@ -79,25 +89,25 @@ module.exports = (sequelize, DataTypes) => {
       });
     }
 
-    static async launchElection({id, userId}) {
+    static async launchElection({ id, userId }) {
       return await Election.update(
         { status: true },
         {
           where: {
             id,
-            userId
+            userId,
           },
         }
       );
     }
 
-    static async endElection({id, userId}) {
+    static async endElection({ id, userId }) {
       return await Election.update(
         { status: false },
         {
           where: {
             id,
-            userId
+            userId,
           },
         }
       );
@@ -105,7 +115,7 @@ module.exports = (sequelize, DataTypes) => {
 
     static async editElectionName(id, title, userId) {
       question = await Election.update(
-        { electionName: title},
+        { electionName: title },
         {
           where: {
             id,
