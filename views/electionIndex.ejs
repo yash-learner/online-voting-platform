@@ -4,15 +4,32 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="csrf-token" content="<%= csrfToken %>" />
     <title><%= election.electionName %></title>
     <link rel="stylesheet" src=="./css/styles.css"/>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
+      const token = document
+        .querySelector('meta[name="csrf-token"]')
+        .getAttribute("content");
       function deleteQuestion(id) {
         fetch(`/questions/${id}`, {
           method: "delete",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({}),
+          body: JSON.stringify({ _csrf: token }),
+        })
+          .then((res) => {
+            if (res.ok) {
+              window.location.reload();
+            }
+          })
+          .catch((err) => console.error(err));
+      }
+      function deleteVoter(id) {
+        fetch(`/voters/${id}`, {
+          method: "delete",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ _csrf: token }),
         })
           .then((res) => {
             if (res.ok) {
@@ -32,7 +49,9 @@
           <span
             class="animate-ping absolute h-2.5 w-2.5 mt-2 p-2 rounded-full bg-red-600 opacity-100"
           ></span>
-          <h3 class="ml-2 text-xl font-semibol text-center">Election is Live</h3>
+          <h3 class="ml-2 text-xl font-semibol text-center">
+            Election is Live
+          </h3>
           <div class="">
             <a href="/elections/<%= election.id %>/vote/"
               ><button
@@ -44,7 +63,11 @@
           </div>
         </div>
         <%} else if(election.status === false){%>
-          <h3 class="ml-2 text-xl font-semibold text-red-600 bg-gray-200 text-center">Election is Ended</h3>
+        <h3
+          class="ml-2 text-xl font-semibold text-red-600 bg-gray-200 text-center"
+        >
+          Election is Ended
+        </h3>
         <%}%>
         <div class="mt-5 space-x-3 flex p-2">
           <a href="/elections"
@@ -64,6 +87,7 @@
           </div>
           <div class="">
             <form action="/elections/start" method="post">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
               <input type="hidden" name="status" value="true" />
               <input type="hidden" name="id" value="<%=election.id%>" />
               <button
@@ -79,6 +103,7 @@
             <form action="/elections/<%=election.id%>/results" method="get">
               <input type="hidden" name="status" value="true" />
               <input type="hidden" name="id" value="<%=election.id%>" />
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
               <button
                 class="bg-green-600 text-white px-5 py-1.5 rounded font-medium mr-2"
               >
@@ -91,6 +116,7 @@
             <form action="/elections/end" method="post">
               <input type="hidden" name="status" value="false" />
               <input type="hidden" name="id" value="<%=election.id%>" />
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
               <button
                 class="bg-red-600 text-white px-5 py-1.5 rounded font-medium mr-2"
               >
@@ -98,12 +124,12 @@
               </button>
             </form>
           </div>
-          <% } %>
-          <% } %>
+          <% } %> <% } %>
         </div>
         <div class="flex mt-5">
           <% if(election.status == null) { %>
           <form action="/questions" method="post">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
             <div class="flex gap-2">
               <div class="flex-auto">
                 <label class="mr-14" for="title">Title</label>
@@ -235,6 +261,11 @@
                   <div class="flex space-x-4">
                     <div class="">
                       <input
+                        type="hidden"
+                        name="_csrf"
+                        value="<%= csrfToken %>"
+                      />
+                      <input
                         name="title"
                         type="text"
                         class="border border-gray-300 text-gray-900 text-sm rounded w-full p-2"
@@ -278,6 +309,7 @@
           <form action="/voters" method="post">
             <div class="flex gap-2">
               <div class="flex-auto">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                 <label class="mr-14" for="title">VoterID</label>
                 <input
                   name="voterId"
@@ -323,10 +355,10 @@
             <% for(let i = 0; i < voters.length; i++ ) {%>
             <li>
               <div
-                class="flex  my-2 px-2 py-1 items-center rounded hover:bg-purple-50"
+                class="flex my-2 px-2 py-1 items-center rounded hover:bg-purple-50"
               >
                 <div class="w-10">
-                  <span class=" text-sm text-black-800 cursor-pointer"
+                  <span class="text-sm text-black-800 cursor-pointer"
                     ><%= voters[i].voterId %></span
                   >
                 </div>
@@ -351,7 +383,7 @@
                 <a
                   href="#"
                   class="trash-icon ml-2"
-                  onclick="deleteOption(<%=voters[i].id%>)"
+                  onclick="deleteVoter(<%=voters[i].id%>)"
                   ><svg
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"

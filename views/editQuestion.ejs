@@ -4,10 +4,12 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="<%= csrfToken %>" />
     <title>Edit Question</title>
     <link rel="stylesheet" href="./css/styles.css" />
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
+        const token = document.querySelector('meta[name="csrf-token"]').getAttribute("content");
         function updateQuestion(id) {
         const title = document.getElementById('question-title').value
         const electionId = document.getElementById('electionId').value
@@ -20,7 +22,8 @@
             title,
             description,
             electionId,
-            questionId
+            questionId,
+            _csrf: token,
           }),
         })
           .then((res) => {

@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="<%= csrfToken %>" />
     <title>Edit Election Name</title>
     <link rel="stylesheet" href="./css/styles.css" />
     <script src="https://cdn.tailwindcss.com"></script>
@@ -11,12 +12,14 @@
         function updateElection(id) {
         const title = document.getElementById('election-title').value
         const electionId = document.getElementById('electionId').value
+        const token = document.querySelector('meta[name="csrf-token"]').getAttribute("content");
         fetch(`/elections/${id}`, {
           method: "put",
           headers: { "Content-Type": "application/json", redirect: 'follow' },
           body: JSON.stringify({
             title,
             electionId,
+            _csrf: token,
           }),
         })
           .then((res) => {

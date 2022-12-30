@@ -3,19 +3,25 @@ const app = express();
 const bodyParser = require("body-parser");
 const path = require("path");
 const { User, Election, Question, Option, Voter } = require("./models");
+const cookieParser = require("cookie-parser");
+const csrf = require("tiny-csrf");
 const passport = require("passport");
 const bcrypt = require("bcrypt");
-// eslint-disable-next-line no-unused-vars
 const connectEnsureLogin = require("connect-ensure-login");
 const session = require("express-session");
 const LocalStrategy = require("passport-local").Strategy;
-const cookieParser = require("cookie-parser");
+const saltRounds = 10;
+
 app.use(express.urlencoded({ extended: false }));
 app.use(bodyParser.json());
+app.set("view engine", "ejs");
 app.use(cookieParser("shh! some secret string"));
+app.use(csrf("this_should_be_32_character_long", ["POST", "PUT", "DELETE"]));
 // eslint-disable-next-line no-undef
 app.use(express.static(path.join(__dirname, "/public")));
-app.set("view engine", "ejs");
+// eslint-disable-next-line no-undef
+app.set("views", path.join(__dirname, "views"));
+
 
 app.use(
   session({
@@ -92,11 +98,11 @@ passport.deserializeUser(function (user, done) {
 });
 
 app.get("/signup", (request, response) => {
-  response.render("signup");
+  response.render("signup",{csrfToken: request.csrfToken()});
 });
 
 app.get("/login", (request, response) => {
-  response.render("login");
+  response.render("login", {csrfToken: request.csrfToken()});
 });
 
 app.get("/signout", (request, response, next) => {
@@ -120,7 +126,6 @@ app.post(
   }
 );
 
-const saltRounds = 10;
 app.post("/users", async function (request, response) {
   // eslint-disable-next-line no-unused-vars
   const hashedPwd = await bcrypt.hash(request.body.password, saltRounds);
@@ -183,6 +188,7 @@ app.get(
         upcoming,
         completed,
         userName,
+        csrfToken: request.csrfToken(),
       });
     } else {
       response.json({ liveElections, upcoming, completed });
@@ -224,6 +230,7 @@ app.get(
         questions: questions,
         voters: voters,
         userName: request.user.firstName,
+        csrfToken: request.csrfToken(),
       });
     } catch (error) {
       return response.status(422).json(error);
@@ -263,6 +270,7 @@ app.get(`/elections/:id/questions/:questionId`, async (request, response) => {
     question: question,
     options: options,
     userName: request.user.firstName,
+    csrfToken: request.csrfToken()
   });
 });
 
@@ -286,11 +294,12 @@ app.get(
       question: question,
       option: option,
       userName: request.user.firstName,
+      csrfToken: request.csrfToken()
     });
   }
 );
 
-app.put("/options/:id", async (request, response) => {
+app.put("/options/:id", connectEnsureLogin.ensureLoggedIn(), async (request, response) => {
   try {
     console.log(
       request.body.title,
@@ -307,8 +316,8 @@ app.put("/options/:id", async (request, response) => {
   }
 });
 
-app.delete("/questions/:id", async (request, response) => {
-  connectEnsureLogin.ensureLoggedIn();
+app.delete("/questions/:id", connectEnsureLogin.ensureLoggedIn(), async (request, response) => {
+
   try {
     await Question.deleteQuestion(request.params.id);
     return response.json(true);
@@ -317,8 +326,8 @@ app.delete("/questions/:id", async (request, response) => {
   }
 });
 
-app.delete("/options/:id", async (request, response) => {
-  connectEnsureLogin.ensureLoggedIn();
+app.delete("/options/:id", connectEnsureLogin.ensureLoggedIn(), async (request, response) => {
+
   try {
     await Option.deleteOption(request.params.id);
     return response.json(true);
@@ -352,6 +361,7 @@ app.get(
       election,
       question,
       userName: request.user.firstName,
+      csrfToken: request.csrfToken()
     });
   }
 );
@@ -361,6 +371,7 @@ app.get("/elections/:id/edit", async (request, response) => {
   response.render("editElectionName", {
     election,
     userName: request.user.firstName,
+    csrfToken: request.csrfToken()
   });
 });
 
@@ -420,6 +431,15 @@ app.post("/voters", async (request, response) => {
   }
 });
 
+app.delete("/voters/:id", connectEnsureLogin.ensureLoggedIn(), async (request, response) => {
+  try {
+    await Voter.deleteVoter(request.params.id);
+    return response.json(true);
+  } catch (error) {
+    return response.status(422).json(error);
+  }
+});
+
 app.get(
   "/elections/:id/preview",
   checkElectionAuthenticated,
@@ -436,6 +456,7 @@ app.get(
       questions: questions,
       election: election,
       options: options,
+      csrfToken: request.csrfToken()
     });
   }
 );
@@ -472,7 +493,7 @@ app.post(
 
 app.get("/elections/:id/voter-login", async (request, response) => {
   const election = await Election.findByPk(request.params.id);
-  return response.render("voterLogin", { election });
+  return response.render("voterLogin", { election, csrfToken: request.csrfToken() });
 });
 
 app.post(
@@ -517,22 +538,30 @@ app.get(
         election: election,
         options: options,
         votersCount,
-        castedVotersCount
+        castedVotersCount,
+        csrfToken: request.csrfToken()
       });
+    }
+    const voter = await Voter.findByPk(request.user.id);
+    if (voter.voted === true && election.status === true) {
+      return response.render("vote", { voter: voter, election: election, csrfToken: request.csrfToken()});
     }
     return response.render("vote", {
       questions: questions,
       election: election,
       options: options,
       voter: request.user,
+      csrfToken: request.csrfToken()
     });
   }
 );
 
-app.post("/elections/:id/vote", async (request, response) => {
+app.post("/elections/:id/vote", connectEnsureLogin.ensureLoggedIn(), async (request, response) => {
   console.log(request.body, "request");
   const election = await Election.findByPk(request.params.id);
-  const options = Object.values(request.body).map((count) => parseInt(count));
+  const votes = Object.values(request.body)
+  votes.pop()
+  const options = votes.map((count) => parseInt(count));
   console.log(options);
   for (let i = 0; i < options.length; i++) {
     await Option.updateOptionCount(options[i]);
@@ -540,8 +569,7 @@ app.post("/elections/:id/vote", async (request, response) => {
     console.log("Option count", option.count);
   }
   await Voter.updateVotedStatus(true, request.user.id);
-  const voter = await Voter.findByPk(request.user.id);
-  response.render("vote", { voter: voter, election: election });
+  return response.redirect(`/elections/${election.id}/vote`)
 });
 
 app.get("/elections/:id/results", async (request, response) => {
@@ -561,11 +589,13 @@ app.get("/elections/:id/results", async (request, response) => {
     userName: request.user.firstName,
     votersCount,
     castedVotersCount,
+    csrfToken: request.csrfToken()
   });
 });
+
 app.get("/", function (request, response) {
   if (request.user === undefined) {
-    return response.render("index");
+    return response.render("index", {csrfToken: request.csrfToken()});
   } else {
     response.redirect("/elections");
   }

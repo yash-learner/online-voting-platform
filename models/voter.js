@@ -45,7 +45,7 @@ module.exports = (sequelize, DataTypes) => {
     static async getCastedVotersCount(electionId) {
       return Voter.count({
         where: {
-          voted : true,
+          voted: true,
           electionId: electionId,
         },
       });
@@ -60,6 +60,13 @@ module.exports = (sequelize, DataTypes) => {
           },
         }
       );
+    }
+    static async deleteVoter(id) {
+      return this.destroy({
+        where: {
+          id,
+        },
+      });
     }
   }
   Voter.init(

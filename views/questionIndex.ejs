@@ -4,15 +4,17 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="csrf-token" content="<%= csrfToken %>" />
     <link rel="stylesheet" href="./css/styles.css" />
     <script src="https://cdn.tailwindcss.com"></script>
     <title><%=question.title%> | <%= election.electionName %></title>
     <script>
+      const token = document.querySelector('meta[name="csrf-token"]').getAttribute("content");
       function deleteOption(id) {
         fetch(`/options/${id}`, {
           method: "delete",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
+          body: JSON.stringify({_csrf: token,
           }),
         })
           .then((res) => {
@@ -44,6 +46,7 @@
             <label for="title">Option</label>
             <div class="flex gap-2">
               <div class="flex-auto">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                 <input
                   name="title"
                   type="text"

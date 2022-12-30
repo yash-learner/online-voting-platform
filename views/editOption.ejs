@@ -4,11 +4,13 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
+    <meta name="csrf-token" content="<%= csrfToken %>" />
+    <title>Edit Option | <%= option.id %></title>
     <link rel="stylesheet" href="./css/styles.css" />
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
       function updateOption(id) {
+        const token = document.querySelector('meta[name="csrf-token"]').getAttribute("content");
         const title = document.getElementById('option-title').value
         const electionId = document.getElementById('electionId').value
         const questionId = document.getElementById('questionId').value
@@ -19,7 +21,8 @@
           body: JSON.stringify({
             title,
             electionId,
-            questionId
+            questionId,
+            _csrf: token,
           }),
         })
           .then((res) => {

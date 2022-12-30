@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="csrf-token" content="<%= csrfToken %>" />
     <title><%= election.electionName%> | Preview</title>
     <link rel="stylesheet" href="./css/styles.css" />
     <script src="https://cdn.tailwindcss.com"></script>
@@ -22,6 +23,7 @@
           </div>
           <%if(voter.voted === false && election.status === true) {%>
           <form action="/elections/<%= election.id %>/vote" method="post">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
             <ul class="list-none">
               <% for(let i = 0; i < questions.length; i++) { %>
               <li class="question-Item">
