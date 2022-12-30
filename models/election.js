@@ -72,7 +72,7 @@ module.exports = (sequelize, DataTypes) => {
     static async getQuestions(electionId) {
       const elections = await Election.findAll({
         where: {
-          id:electionId,
+          id: electionId,
         },
         include: Model.Question,
         order: [["id", "ASC"]],

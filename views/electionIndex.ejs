@@ -43,13 +43,13 @@
   <body class="bg-gray-500 font-mono">
     <%- include('header.ejs', {title:"Online Voting Platform"})%>
     <div class="grid grid-cols-6">
-        <div class="col-start-3 col-span-3">
+      <div class="col-start-3 col-span-3">
       <% if(messages && messages.error && messages.error.length > 0)  { %>
         <% for(var i=0; i<messages.error.length; i++) { %>
                 <li> <span class="text-red-900 font-bold bg-gray-200 text-center" ><%= messages.error[i] %></span></li>
         <% } %>
       <% } %>
-    </div>
+      </div>
       <div class="col-start-3 col-span-2">
         <%if(election.status === true) {%>
         <div class="flex space-x-3 p-2">

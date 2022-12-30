@@ -1,21 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="csrf-token" content="<%= csrfToken %>" />
     <title>Edit Election Name</title>
     <link rel="stylesheet" href="./css/styles.css" />
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
-        function updateElection(id) {
-        const title = document.getElementById('election-title').value
-        const electionId = document.getElementById('electionId').value
-        const token = document.querySelector('meta[name="csrf-token"]').getAttribute("content");
+      function updateElection(id) {
+        const title = document.getElementById("election-title").value;
+        const electionId = document.getElementById("electionId").value;
+        const token = document
+          .querySelector('meta[name="csrf-token"]')
+          .getAttribute("content");
         fetch(`/elections/${id}`, {
           method: "put",
-          headers: { "Content-Type": "application/json", redirect: 'follow' },
+          headers: { "Content-Type": "application/json", redirect: "follow" },
           body: JSON.stringify({
             title,
             electionId,
@@ -23,48 +25,53 @@
           }),
         })
           .then((res) => {
-            window.location.href = `/elections`
+            window.location.href = `/elections`;
             // window.location.reload();
           })
           .catch((err) => console.error(err));
       }
     </script>
-</head>
-<body class="bg-gray-500 font-mono">
-  <%- include('header.ejs', {title:"Online Voting Platform"})%>
+  </head>
+  <body class="bg-gray-500 font-mono">
+    <%- include('header.ejs', {title:"Online Voting Platform"})%>
     <div class="grid grid-cols-6">
-        <div class="col-start-3 col-span-2 py-10">
-          <div class="mt-5">
-            <a href="/elections/<%= election.id %>"
-              ><h2 class="text-2xl font-black">
-                <%= election.electionName %>
-              </h2></a
-            >
-          </div>
-            <div class="py-3">
-              <label for="title">Election Name</label>
-              <input
-                id="election-title"
-                name="electionName"
-                type="text"
-                class="border border-gray-300 text-gray-900 text-sm rounded w-full p-2"
-                autofocus
-                placeholder="Edit the option title"
-                value="<%= election.electionName %>"
-                required
-              />
-            </div>
-            <input type="hidden" id="electionId" name="electionId" value="<%= election.id %>">
-            <div class="py-3">
-              <button
-                onclick="updateElection(<%= election.id %>)"
-                type="submit"
-                class="text-white bg-green-600 hover:bg-green-700 font-medium rounded text-sm px-5 py-2 mr-2 mb-2"
-              >
-                Update
-              </button>
-            </div>
+      <div class="col-start-3 col-span-2 py-10">
+        <div class="mt-5">
+          <a href="/elections/<%= election.id %>"
+            ><h2 class="text-2xl font-black">
+              <%= election.electionName %>
+            </h2></a
+          >
+        </div>
+        <div class="py-3">
+          <label for="title">Election Name</label>
+          <input
+            id="election-title"
+            name="electionName"
+            type="text"
+            class="border border-gray-300 text-gray-900 text-sm rounded w-full p-2"
+            autofocus
+            placeholder="Edit the option title"
+            value="<%= election.electionName %>"
+            required
+          />
+        </div>
+        <input
+          type="hidden"
+          id="electionId"
+          name="electionId"
+          value="<%= election.id %>"
+        />
+        <div class="py-3">
+          <button
+            onclick="updateElection(<%= election.id %>)"
+            type="submit"
+            class="text-white bg-green-600 hover:bg-green-700 font-medium rounded text-sm px-5 py-2 mr-2 mb-2"
+          >
+            Update
+          </button>
         </div>
       </div>
-</body>
+    </div>
+  </body>
 </html>

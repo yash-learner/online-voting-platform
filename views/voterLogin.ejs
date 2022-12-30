@@ -15,9 +15,7 @@
           Online Voting Platform
         </h1>
         <hr class="my-8 h-px bg-gray-200 border-0 dark:bg-gray-700" />
-        <h2 class="text-2xl font-black">
-          <%= election.electionName %>
-        </h2>
+        <h2 class="text-2xl font-black"><%= election.electionName %></h2>
         <form action="" method="post">
           <div class="py-3">
             <input type="hidden" name="_csrf" value="<%= csrfToken %>" />

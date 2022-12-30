@@ -497,7 +497,7 @@ app.post(
     const questions = await Question.getAllQuestions(id);
     for (let i = 0; i < questions.length; i++) {
       let options = await Option.getOptions(questions[i].id);
-      if(options.length < 2) {
+      if (options.length < 2) {
         console.log("Inside Flash");
         request.flash(
           "error",

@@ -11,21 +11,48 @@
   <body class="bg-gray-500">
     <div class="grid grid-cols-6">
       <div class="col-start-3 col-span-2 py-10">
-        <p class="m-4 text-center text-3xl font-semibold text-gray-900">Online Voting Platform!</p>
-        <h6 class="text-center py-4 text-2xl font-black text-gray-900">Login to your account</h6>
-        <p class="text-center text-xl font-semibold text-gray-900">Don't have an account? <a href="/signup" class="hover:text-green-500 text-center text-xl font-bold text-white font-semibold">SignUp</a></p>
+        <p class="m-4 text-center text-3xl font-semibold text-gray-900">
+          Online Voting Platform!
+        </p>
+        <h6 class="text-center py-4 text-2xl font-black text-gray-900">
+          Login to your account
+        </h6>
+        <p class="text-center text-xl font-semibold text-gray-900">
+          Don't have an account?
+          <a
+            href="/signup"
+            class="hover:text-green-500 text-center text-xl font-bold text-white font-semibold"
+            >SignUp</a
+          >
+        </p>
         <form action="/session" method="post">
           <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
           <div class="py-3">
             <label for="email">Email: </label>
-            <input name="email" type="email" class="border border-gray-300 text-gray-900 text-sm rounded w-full p-2" required autofocus>
+            <input
+              name="email"
+              type="email"
+              class="border border-gray-300 text-gray-900 text-sm rounded w-full p-2"
+              required
+              autofocus
+            />
           </div>
           <div class="py-3">
             <label for="password">Password: </label>
-            <input name="password" type="password" class="border border-gray-300 text-gray-900 text-sm rounded w-full p-2" required>
+            <input
+              name="password"
+              type="password"
+              class="border border-gray-300 text-gray-900 text-sm rounded w-full p-2"
+              required
+            />
           </div>
           <div class="py-3">
-            <button type="submit" class="text-white bg-green-600 hover:bg-green-700 font-medium rounded text-sm px-5 py-2 mr-2 mb-2">Sign In</button>
+            <button
+              type="submit"
+              class="text-white bg-green-600 hover:bg-green-700 font-medium rounded text-sm px-5 py-2 mr-2 mb-2"
+            >
+              Sign In
+            </button>
           </div>
         </form>
       </div>

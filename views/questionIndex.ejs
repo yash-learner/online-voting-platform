@@ -9,13 +9,14 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <title><%=question.title%> | <%= election.electionName %></title>
     <script>
-      const token = document.querySelector('meta[name="csrf-token"]').getAttribute("content");
+      const token = document
+        .querySelector('meta[name="csrf-token"]')
+        .getAttribute("content");
       function deleteOption(id) {
         fetch(`/options/${id}`, {
           method: "delete",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({_csrf: token,
-          }),
+          body: JSON.stringify({ _csrf: token }),
         })
           .then((res) => {
             if (res.ok) {

@@ -31,7 +31,8 @@
     </script>
   </head>
   <body class="bg-gray-500">
-    <%- include('header.ejs', {title:"Online Voting Platform", userName:userName})%>
+    <%- include('header.ejs', {title:"Online Voting Platform",
+    userName:userName})%>
     <div class="grid grid-cols-6">
       <div class="col-start-3 col-span-2">
         <div class="mt-5">
@@ -64,9 +65,10 @@
         </form>
         <div class="mb-3"></div>
         <div>
-          <%- include('election.ejs', {title: "Live", elections:liveElections})%>
-          <%- include('election.ejs', {title: "UpComing", elections:upcoming}) %>
-          <%- include('election.ejs', {title: "Completed", elections: completed}) %>
+          <%- include('election.ejs', {title: "Live",
+          elections:liveElections})%> <%- include('election.ejs', {title:
+          "UpComing", elections:upcoming}) %> <%- include('election.ejs',
+          {title: "Completed", elections: completed}) %>
         </div>
       </div>
     </div>

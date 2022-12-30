@@ -15,17 +15,31 @@
         <form action="/questions" method="post">
           <div class="py-3">
             <label for="title">What's the question ?: </label>
-            <input name="title" type="text" class="border border-gray-300 text-gray-900 text-sm rounded w-full p-2" autofocus
-            placeholder="Type your question here!"
-            >
+            <input
+              name="title"
+              type="text"
+              class="border border-gray-300 text-gray-900 text-sm rounded w-full p-2"
+              autofocus
+              placeholder="Type your question here!"
+            />
           </div>
           <div class="py-3">
             <label for="description">Description: </label>
-            <input name="description" type="text" class="border border-gray-300 text-gray-900 text-sm rounded w-full p-2" placeholder="Description">
+            <input
+              name="description"
+              type="text"
+              class="border border-gray-300 text-gray-900 text-sm rounded w-full p-2"
+              placeholder="Description"
+            />
           </div>
-          <input type="hidden" name="electionId" value="<%=election.id%>">
+          <input type="hidden" name="electionId" value="<%=election.id%>" />
           <div class="py-3">
-            <button type="submit" class="text-white bg-green-600 hover:bg-green-700 font-medium rounded text-sm px-5 py-2 mr-2 mb-2">Submit</button>
+            <button
+              type="submit"
+              class="text-white bg-green-600 hover:bg-green-700 font-medium rounded text-sm px-5 py-2 mr-2 mb-2"
+            >
+              Submit
+            </button>
           </div>
         </form>
         <div class="mb-3"></div>

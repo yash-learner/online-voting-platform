@@ -53,9 +53,9 @@ module.exports = (sequelize, DataTypes) => {
     }
 
     static async updateOptionCount(optionId) {
-      console.log("Inside model", optionId)
+      console.log("Inside model", optionId);
       const option = await Option.findByPk(optionId);
-      return await option.increment('count',{by: 1});
+      return await option.increment("count", { by: 1 });
     }
 
     static async deleteOption(id) {

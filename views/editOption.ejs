@@ -10,14 +10,16 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
       function updateOption(id) {
-        const token = document.querySelector('meta[name="csrf-token"]').getAttribute("content");
-        const title = document.getElementById('option-title').value
-        const electionId = document.getElementById('electionId').value
-        const questionId = document.getElementById('questionId').value
+        const token = document
+          .querySelector('meta[name="csrf-token"]')
+          .getAttribute("content");
+        const title = document.getElementById("option-title").value;
+        const electionId = document.getElementById("electionId").value;
+        const questionId = document.getElementById("questionId").value;
 
         fetch(`/options/${id}`, {
           method: "put",
-          headers: { "Content-Type": "application/json", redirect: 'follow' },
+          headers: { "Content-Type": "application/json", redirect: "follow" },
           body: JSON.stringify({
             title,
             electionId,
@@ -26,7 +28,7 @@
           }),
         })
           .then((res) => {
-            window.location.href = `/elections/${electionId}/questions/${questionId}/`
+            window.location.href = `/elections/${electionId}/questions/${questionId}/`;
             // window.location.reload();
           })
           .catch((err) => console.error(err));
@@ -49,29 +51,39 @@
           <span class="text-sm font-normal"><%=question.description%></span>
         </div>
 
-          <div class="py-3">
-            <label for="title">Option</label>
-            <input
-              id="option-title"
-              name="title"
-              type="text"
-              class="border border-gray-300 text-gray-900 text-sm rounded w-full p-2"
-              autofocus
-              placeholder="Edit the option title"
-              value="<%= option.title %>"
-            />
-          </div>
-          <input type="hidden" id="questionId" name="questionId" value="<%= question.id %>">
-          <input type="hidden" id="electionId" name="electionId" value="<%= election.id %>">
-          <div class="py-3">
-            <button
-              onclick="updateOption(<%= option.id %>)"
-              type="submit"
-              class="text-white bg-green-600 hover:bg-green-700 font-medium rounded text-sm px-5 py-2 mr-2 mb-2"
-            >
-              Update
-            </button>
-          </div>
+        <div class="py-3">
+          <label for="title">Option</label>
+          <input
+            id="option-title"
+            name="title"
+            type="text"
+            class="border border-gray-300 text-gray-900 text-sm rounded w-full p-2"
+            autofocus
+            placeholder="Edit the option title"
+            value="<%= option.title %>"
+          />
+        </div>
+        <input
+          type="hidden"
+          id="questionId"
+          name="questionId"
+          value="<%= question.id %>"
+        />
+        <input
+          type="hidden"
+          id="electionId"
+          name="electionId"
+          value="<%= election.id %>"
+        />
+        <div class="py-3">
+          <button
+            onclick="updateOption(<%= option.id %>)"
+            type="submit"
+            class="text-white bg-green-600 hover:bg-green-700 font-medium rounded text-sm px-5 py-2 mr-2 mb-2"
+          >
+            Update
+          </button>
+        </div>
       </div>
     </div>
   </body>
