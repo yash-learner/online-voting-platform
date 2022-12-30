@@ -32,7 +32,7 @@
           <span
             class="animate-ping absolute h-2.5 w-2.5 mt-2 p-2 rounded-full bg-red-600 opacity-100"
           ></span>
-          <h3 class="ml-2 text-xl font-semibold">Election is Live</h3>
+          <h3 class="ml-2 text-xl font-semibol text-center">Election is Live</h3>
           <div class="">
             <a href="/elections/<%= election.id %>/vote/"
               ><button
@@ -43,6 +43,8 @@
             >
           </div>
         </div>
+        <%} else if(election.status === false){%>
+          <h3 class="ml-2 text-xl font-semibold text-red-600 bg-gray-200 text-center">Election is Ended</h3>
         <%}%>
         <div class="mt-5 space-x-3 flex p-2">
           <a href="/elections"
@@ -84,6 +86,7 @@
               </button>
             </form>
           </div>
+          <% if(election.status === true) {%>
           <div class="">
             <form action="/elections/end" method="post">
               <input type="hidden" name="status" value="false" />
@@ -95,6 +98,7 @@
               </button>
             </form>
           </div>
+          <% } %>
           <% } %>
         </div>
         <div class="flex mt-5">

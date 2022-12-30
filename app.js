@@ -466,7 +466,7 @@ app.post(
       status: request.body.status,
     });
     console.log("election is launched");
-    return response.redirect(`/elections/${request.body.id}`);
+    return response.redirect(`/elections/${request.body.id}/vote`);
   }
 );
 
