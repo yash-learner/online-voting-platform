@@ -18,6 +18,13 @@
               <%= election.electionName%> Result's
             </h2></a
           >
+          <div class="flex gap-2 p-1 ">
+            <span>Total Voters: </span>
+            <span class="text-white"><%= votersCount %></span>
+            <span> | </span>
+            <span>Casted Voters: </span>
+            <span class="text-white"><%= castedVotersCount %></span>
+          </div>
         </div>
         <ul class="list-none">
           <% for(let i = 0; i < questions.length; i++) { %>

@@ -152,29 +152,40 @@ const checkElectionAuthenticated = async (request, response, next) => {
   const election = await Election.findByPk(request.params.id);
   if (request.isAuthenticated() && election.userId === request.user.id) {
     return next();
-  } else if(request.isAuthenticated() && election.userId !== request.user.id && request.user.electionId === undefined){
+  } else if (
+    request.isAuthenticated() &&
+    election.userId !== request.user.id &&
+    request.user.electionId === undefined
+  ) {
     return response.redirect("/elections");
+  } else if (
+    request.isAuthenticated() &&
+    request.user.electionId === election.id
+  ) {
+    return response.redirect(`/elections/${election.id}/vote`);
   }
-  else if(request.isAuthenticated() && request.user.electionId === election.id){
-    return response.redirect(`/elections/${election.id}/vote`)
-  }
-  return response.redirect("/")
+  return response.redirect("/");
 };
 
 app.get(
   "/elections",
   connectEnsureLogin.ensureLoggedIn(),
   async (request, response) => {
-    const userName = request.user.firstName
+    const userName = request.user.firstName;
     const loggedInUser = request.user;
     const liveElections = await Election.live(loggedInUser.id);
     const upcoming = await Election.upcoming(loggedInUser.id);
     const completed = await Election.completed(loggedInUser.id);
     console.log(upcoming);
     if (request.accepts("html")) {
-      response.render("elections", { liveElections, upcoming, completed, userName });
+      response.render("elections", {
+        liveElections,
+        upcoming,
+        completed,
+        userName,
+      });
     } else {
-      response.json({ liveElections, upcoming, completed, });
+      response.json({ liveElections, upcoming, completed });
     }
   }
 );
@@ -212,7 +223,7 @@ app.get(
         election: election,
         questions: questions,
         voters: voters,
-        userName: request.user.firstName
+        userName: request.user.firstName,
       });
     } catch (error) {
       return response.status(422).json(error);
@@ -220,10 +231,14 @@ app.get(
   }
 );
 
-app.get(`/elections/:id/questions/new`, checkElectionAuthenticated, async (request, response) => {
-  const election = await Election.findByPk(request.params.id);
-  return response.render("newQuestion", { election: election });
-});
+app.get(
+  `/elections/:id/questions/new`,
+  checkElectionAuthenticated,
+  async (request, response) => {
+    const election = await Election.findByPk(request.params.id);
+    return response.render("newQuestion", { election: election });
+  }
+);
 
 app.post("/questions", async (request, response) => {
   try {
@@ -247,14 +262,14 @@ app.get(`/elections/:id/questions/:questionId`, async (request, response) => {
     election: election,
     question: question,
     options: options,
-    userName: request.user.firstName
+    userName: request.user.firstName,
   });
 });
 
 app.get(
   `/elections/:id/questions/:id/options/new`,
   async (request, response) => {
-    response.render("newOption", {userName: request.user.firstName});
+    response.render("newOption", { userName: request.user.firstName });
   }
 );
 
@@ -270,7 +285,7 @@ app.get(
       election: election,
       question: question,
       option: option,
-      userName: request.user.firstName
+      userName: request.user.firstName,
     });
   }
 );
@@ -317,7 +332,7 @@ app.post("/options", async (request, response) => {
     await Option.create({
       title: request.body.title,
       questionId: request.body.questionId,
-      count : 0
+      count: 0,
     });
     console.log("Option Added", request.body.electionId);
     response.redirect(
@@ -333,25 +348,31 @@ app.get(
   async (request, response) => {
     const election = await Election.findByPk(request.params.electionId);
     const question = await Question.findByPk(request.params.id);
-    response.render("editQuestion", { election, question,userName: request.user.firstName });
+    response.render("editQuestion", {
+      election,
+      question,
+      userName: request.user.firstName,
+    });
   }
 );
 
-app.get(
-  "/elections/:id/edit",
-  async (request, response) => {
-    const election = await Election.findByPk(request.params.id);
-    response.render("editElectionName", { election, userName: request.user.firstName });
-  }
-);
+app.get("/elections/:id/edit", async (request, response) => {
+  const election = await Election.findByPk(request.params.id);
+  response.render("editElectionName", {
+    election,
+    userName: request.user.firstName,
+  });
+});
 
 app.put("/elections/:id", async (request, response) => {
   try {
     console.log("update election name", request.body.title);
-    await Election.editElectionName(request.params.id, request.body.title, request.user.id);
-    return response.redirect(
-      `/elections`
+    await Election.editElectionName(
+      request.params.id,
+      request.body.title,
+      request.user.id
     );
+    return response.redirect(`/elections`);
   } catch (error) {
     return response.status(422).json(error);
   }
@@ -399,21 +420,25 @@ app.post("/voters", async (request, response) => {
   }
 });
 
-app.get("/elections/:id/preview", checkElectionAuthenticated, async (request, response) => {
-  const election = await Election.findByPk(request.params.id);
-  const questions = await Question.getAllQuestions(election.id);
-  console.log(election, questions);
-  let options = {};
-  for (let i = 0; i < questions.length; i++) {
-    let questionOptions = await Option.getOptions(questions[i].id);
-    options[i] = questionOptions;
+app.get(
+  "/elections/:id/preview",
+  checkElectionAuthenticated,
+  async (request, response) => {
+    const election = await Election.findByPk(request.params.id);
+    const questions = await Question.getAllQuestions(election.id);
+    console.log(election, questions);
+    let options = {};
+    for (let i = 0; i < questions.length; i++) {
+      let questionOptions = await Option.getOptions(questions[i].id);
+      options[i] = questionOptions;
+    }
+    return response.render("preview", {
+      questions: questions,
+      election: election,
+      options: options,
+    });
   }
-  return response.render("preview", {
-    questions: questions,
-    election: election,
-    options: options,
-  });
-});
+);
 
 app.post(
   "/elections/start/",
@@ -486,7 +511,7 @@ app.get(
       questions: questions,
       election: election,
       options: options,
-      voter:  request.user
+      voter: request.user,
     });
   }
 );
@@ -496,33 +521,41 @@ app.post("/elections/:id/vote", async (request, response) => {
   const election = await Election.findByPk(request.params.id);
   const options = Object.values(request.body).map((count) => parseInt(count));
   console.log(options);
-  for(let i = 0; i < options.length; i++){
+  for (let i = 0; i < options.length; i++) {
     await Option.updateOptionCount(options[i]);
-      const option = await Option.findByPk(options[i])
-      console.log("Option count", option.count);
+    const option = await Option.findByPk(options[i]);
+    console.log("Option count", option.count);
   }
   await Voter.updateVotedStatus(true, request.user.id);
-  const voter = await Voter.findByPk(request.user.id)
-  response.render("vote", {voter:  voter, election: election,})
-
-})
+  const voter = await Voter.findByPk(request.user.id);
+  response.render("vote", { voter: voter, election: election });
+});
 
 app.get("/elections/:id/results", async (request, response) => {
   const election = await Election.findByPk(request.params.id);
   const questions = await Question.getAllQuestions(election.id);
+  const votersCount = await Voter.getVotersCount(election.id);
+  const castedVotersCount = await Voter.getCastedVotersCount(election.id);
   let options = {};
   for (let i = 0; i < questions.length; i++) {
     let questionOptions = await Option.getOptionsForResults(questions[i].id);
     options[i] = questionOptions;
   }
-  response.render("results", {election,questions,options,userName: request.user.firstName});
-})
+  response.render("results", {
+    election,
+    questions,
+    options,
+    userName: request.user.firstName,
+    votersCount,
+    castedVotersCount,
+  });
+});
 app.get("/", function (request, response) {
   if (request.user === undefined) {
-  return response.render("index");
-} else {
-  response.redirect("/elections");
-}
+    return response.render("index");
+  } else {
+    response.redirect("/elections");
+  }
 });
 
 module.exports = app;
