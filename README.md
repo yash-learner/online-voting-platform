@@ -2,6 +2,8 @@
 
 **Deployed application link :** https://yaswanth-online-voting-platform.onrender.com/
 
+[**Demo Video**](https://drive.google.com/file/d/1su5BvmmGtpwvz27LjwQ1t7R205cvbC_h/view?usp=sharing)
+
 
 The online voting is a platform to host elections. The following are the personas and features of the platform.
 
