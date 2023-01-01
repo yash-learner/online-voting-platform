@@ -75,6 +75,10 @@ Features :
 **Election's public page once the election is ended**
 ![image](https://user-images.githubusercontent.com/53794102/210167893-bf708ece-1227-4feb-a312-ce2b0c409bf5.png)
 
+**Election page after election is ended :**
+![image](https://user-images.githubusercontent.com/53794102/210168297-73dec21b-bdb0-4a2e-a907-d5acdc0871fd.png)
+
+
 -----
 
 Upcoming Features :
