@@ -56,7 +56,7 @@ describe("Voting application tests", function () {
     res = await agent.get("/elections");
     expect(res.statusCode).toBe(302);
   });
-
+  //                                         Election Tests
   test("Create a new Election", async () => {
     const agent = request.agent(server);
     await login(agent, "user.a@test.com", "12345678");
@@ -69,7 +69,7 @@ describe("Voting application tests", function () {
     expect(response.statusCode).toBe(302);
   });
 
-  test("Update the Election", async () => {
+  test("Update the election name", async () => {
     const agent = request.agent(server);
     await login(agent, "user.a@test.com", "12345678");
     let res = await agent.get("/elections");
@@ -110,5 +110,39 @@ describe("Voting application tests", function () {
       parsedUpdatedGroupedResponse.upcoming[upcomingElectionsCount - 1]
         .electionName
     ).toBe("Cricket Venue");
+  });
+
+  test("Delete the election", async () => {
+    const agent = request.agent(server);
+    await login(agent, "user.a@test.com", "12345678");
+    let res = await agent.get("/elections");
+    let csrfToken = extractCsrfToken(res);
+    await agent.post("/elections").send({
+      _csrf: csrfToken,
+      electionName: "Election to be deleted",
+    });
+
+    const groupedElectionsResponse = await agent
+      .get("/elections")
+      .set("Accept", "application/json");
+    const parsedGroupedResponse = JSON.parse(groupedElectionsResponse.text);
+
+    expect(parsedGroupedResponse.upcoming).toBeDefined();
+
+    const upcomingElectionsCount = parsedGroupedResponse.upcoming.length;
+    const latestElection =
+      parsedGroupedResponse.upcoming[upcomingElectionsCount - 1];
+
+    res = await agent.get("/elections");
+    csrfToken = extractCsrfToken(res);
+
+    const deleteResponse = await agent
+      .delete(`/elections/${latestElection.id}/`)
+      .send({
+        _csrf: csrfToken,
+      });
+
+    const parsedDeleteResponse = JSON.parse(deleteResponse.text);
+    expect(parsedDeleteResponse).toBe(true);
   });
 });

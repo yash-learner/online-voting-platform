@@ -1,25 +1,24 @@
-# online-voting-platform  
+# online-voting-platform
 
 **Deployed application link :** https://yaswanth-online-voting-platform.onrender.com/
 
 [**Demo Video**](https://drive.google.com/file/d/1su5BvmmGtpwvz27LjwQ1t7R205cvbC_h/view?usp=sharing)
 
-
 The online voting is a platform to host elections. The following are the personas and features of the platform.
 
 There are two personas in our voting platform:
 
-- **Election Administrator:** A person who sets up an election - they have the ability to manage the questions asked in the election ballot, register voters, launch and 
-end the election and so on.
+- **Election Administrator:** A person who sets up an election - they have the ability to manage the questions asked in the election ballot, register voters, launch and
+  end the election and so on.
 
-- **Voter:** A user who wants to participate in an election by answering questions in the ballot. They can sign in using a voter ID and a password, 
-cast their ballot, and view election results once voting has ended.
+- **Voter:** A user who wants to participate in an election by answering questions in the ballot. They can sign in using a voter ID and a password,
+  cast their ballot, and view election results once voting has ended.
 
-----
+---
 
 Features :
 
-**Admin :** 
+**Admin :**
 
 - Can create a new election with ballot of questions with options.
 - Can edit/delete the election, question and options
@@ -34,11 +33,11 @@ Features :
 - Can login to the voting page of election and vote.
 - Can see the election's result on the voting page once the election is ended.
 
-------
+---
 
-# Screenshots 
+# Screenshots
 
-**Home Page** 
+**Home Page**
 
 ![image](https://user-images.githubusercontent.com/53794102/210167455-dd585647-de3a-4a8e-9172-601320c6e42d.png)
 
@@ -67,7 +66,6 @@ Features :
 **Election Voting Page :**
 ![image](https://user-images.githubusercontent.com/53794102/210167807-bf9f3450-2df9-4a16-89fc-b352c97e6aac.png)
 
-
 **Election Voting Page after voter casting their vote :**
 ![image](https://user-images.githubusercontent.com/53794102/210167837-f0aaaf66-da3c-4097-a384-8f3acbf9d8fa.png)
 
@@ -80,12 +78,11 @@ Features :
 **Election page after election is ended :**
 ![image](https://user-images.githubusercontent.com/53794102/210168297-73dec21b-bdb0-4a2e-a907-d5acdc0871fd.png)
 
-
------
+---
 
 Upcoming Features :
 
-- Add tests 
+- Add tests
 - User can change their password
 - Implement click to copy for public link.
 - Instead election admin seeing a preview manually, Automatically show the preview of the voting page just before launch of election.
@@ -94,8 +91,3 @@ Upcoming Features :
 - Election admin can send the voter ID and password to voters as email.
 - Improve UI and responsiveness
 - Try to bring all election activities into single page.
-
-
-
-
-
