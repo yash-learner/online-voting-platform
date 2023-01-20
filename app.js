@@ -543,7 +543,8 @@ app.get("/elections/:id/voter-login", async (request, response) => {
 app.post(
   "/elections/:id/voter-login",
   passport.authenticate("voter-local", {
-    failureRedirect: "/elections/:id/voter-login",
+    failureRedirect: "back",
+    failureFlash: true,
   }),
   function (request, response) {
     console.log("Hello", request.user);
