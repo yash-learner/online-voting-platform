@@ -44,11 +44,11 @@
     <%- include('header.ejs', {title:"Online Voting Platform"})%>
     <div class="grid grid-cols-6">
       <div class="col-start-3 col-span-3">
-      <% if(messages && messages.error && messages.error.length > 0)  { %>
-        <% for(var i=0; i<messages.error.length; i++) { %>
-                <li> <span class="text-red-900 font-bold bg-gray-200 text-center" ><%= messages.error[i] %></span></li>
+        <% if(messages && messages.error && messages.error.length > 0)  { %>
+          <% for(var i=0; i<messages.error.length; i++) { %>
+                  <li> <span class="text-red-900 font-bold bg-gray-200 text-center" ><%= messages.error[i] %></span></li>
+          <% } %>
         <% } %>
-      <% } %>
       </div>
       <div class="col-start-3 col-span-2">
         <%if(election.status === true) {%>
@@ -189,7 +189,7 @@
                 href="/elections/<%= election.id %>/questions/<%= questions[i].id%>"
               >
                 <label
-                  title="<%=questions[i].description%>"
+                  title="Click for going to question Page of <%=questions[i].description%>"
                   for="question-checkbox-<%= questions[i].id %>"
                   class="ml-2 text-lg font-normal text-black-600 cursor-pointer"
                   ><%= questions[i].title %></label
@@ -199,6 +199,7 @@
               <a
                 href="/elections/<%= election.id %>/questions/<%= questions[i].id%>/edit"
                 class="block ml-2"
+                title="Edit question title"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -219,6 +220,7 @@
                 href="#"
                 class="trash-icon ml-2"
                 onclick="deleteQuestion(<%=questions[i].id%>)"
+                title="Delete Question"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -235,7 +237,10 @@
                   />
                 </svg>
               </a>
-              <button onclick="openForm(<%= questions[i].id%>)">
+              <button
+                onclick="openForm(<%= questions[i].id%>)"
+                title="Click for opening option form"
+              >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
@@ -276,8 +281,9 @@
                         type="text"
                         class="border border-gray-300 text-gray-900 text-sm rounded w-full p-2"
                         autofocus
-                        placeholder="<%=questions[i].description%>"
+                        placeholder="Type Option for <%=questions[i].description%>"
                         required
+                        title="Type Option for <%=questions[i].description%>"
                       />
                     </div>
                     <input

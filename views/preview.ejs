@@ -22,7 +22,7 @@
               </h2></a
             >
           </div>
-          <form action="" method="post">
+          <form>
             <ul class="list-none">
               <% for(let i = 0; i < questions.length; i++) { %>
               <li class="question-Item">
@@ -63,8 +63,9 @@
               <% } %>
             </ul>
             <button
+              title="Button is disabled on preview"
               type="submit"
-              class="ml-20 mt-4 text-white bg-green-600 hover:bg-green-700 font-medium rounded text-sm px-5 py-2 mr-2 mb-2"
+              class="ml-20 mt-4 text-white bg-green-500 hover:bg-green-200 font-medium rounded text-sm px-5 py-2 mr-2 mb-2"
             >
               Vote
             </button>
