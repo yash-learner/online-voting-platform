@@ -231,13 +231,21 @@ app.get(
       const election = await Election.findByPk(request.params.id);
       const questions = await Question.getAllQuestions(election.id);
       const voters = await Voter.getAllVoters(election.id);
-      response.render("electionIndex", {
-        election: election,
-        questions: questions,
-        voters: voters,
-        userName: request.user.firstName,
-        csrfToken: request.csrfToken(),
-      });
+      if (request.accepts("html")) {
+        response.render("electionIndex", {
+          election: election,
+          questions: questions,
+          voters: voters,
+          userName: request.user.firstName,
+          csrfToken: request.csrfToken(),
+        });
+      } else {
+        response.json({
+          election,
+          questions,
+          voters,
+        });
+      }
     } catch (error) {
       return response.status(422).json(error);
     }
@@ -271,13 +279,21 @@ app.get(`/elections/:id/questions/:questionId`, async (request, response) => {
   const question = await Question.findByPk(request.params.questionId);
   const options = await Option.getOptions(request.params.questionId);
   console.log(options, "Options");
-  return response.render("questionIndex", {
-    election: election,
-    question: question,
-    options: options,
-    userName: request.user.firstName,
-    csrfToken: request.csrfToken(),
-  });
+  if (request.accepts("html")) {
+    return response.render("questionIndex", {
+      election: election,
+      question: question,
+      options: options,
+      userName: request.user.firstName,
+      csrfToken: request.csrfToken(),
+    });
+  } else {
+    response.json({
+      election,
+      question,
+      options,
+    });
+  }
 });
 
 app.get(

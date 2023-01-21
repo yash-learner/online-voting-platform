@@ -112,6 +112,152 @@ describe("Voting application tests", function () {
     ).toBe("Cricket Venue");
   });
 
+  test("Add question to the election", async () => {
+    const agent = request.agent(server);
+    await login(agent, "user.a@test.com", "12345678");
+    let res = await agent.get("/elections");
+    let csrfToken = extractCsrfToken(res);
+
+    const groupedElectionsResponse = await agent
+      .get("/elections")
+      .set("Accept", "application/json");
+    const parsedGroupedResponse = JSON.parse(groupedElectionsResponse.text);
+
+    expect(parsedGroupedResponse.upcoming).toBeDefined();
+
+    const upcomingElectionsCount = parsedGroupedResponse.upcoming.length;
+    const latestElection =
+      parsedGroupedResponse.upcoming[upcomingElectionsCount - 1];
+
+    res = await agent.get(`/elections/${latestElection.id}/`);
+    csrfToken = extractCsrfToken(res);
+
+    const response = await agent.post(`/questions`).send({
+      _csrf: csrfToken,
+      title: "Question 1",
+      description:
+        "Which country should be venue for Ind vs Pak match for upcoming ICC T20 World Cup",
+      electionId: latestElection.id,
+    });
+
+    expect(response.statusCode).toBe(302);
+  });
+
+  test("Add option to the question", async () => {
+    const agent = request.agent(server);
+    await login(agent, "user.a@test.com", "12345678");
+    let res = await agent.get("/elections");
+    let csrfToken = extractCsrfToken(res);
+
+    const groupedElectionsResponse = await agent
+      .get("/elections")
+      .set("Accept", "application/json");
+    const parsedGroupedResponse = JSON.parse(groupedElectionsResponse.text);
+
+    expect(parsedGroupedResponse.upcoming).toBeDefined();
+
+    const upcomingElectionsCount = parsedGroupedResponse.upcoming.length;
+    const latestElection =
+      parsedGroupedResponse.upcoming[upcomingElectionsCount - 1];
+
+    res = await agent.get(`/elections/${latestElection.id}/questions/1`);
+    csrfToken = extractCsrfToken(res);
+
+    // Adding option 1 to question 1
+    const response = await agent.post(`/options`).send({
+      _csrf: csrfToken,
+      title: "West Indies",
+      questionId: 1,
+    });
+    expect(response.statusCode).toBe(302);
+    const questionGroupResponse = await agent
+      .get(`/elections/${latestElection.id}/questions/1`)
+      .set("Accept", "application/json");
+    const parsedQuestionGroupResponse = JSON.parse(questionGroupResponse.text);
+    expect(parsedQuestionGroupResponse.options).toBeDefined();
+    console.log(parsedQuestionGroupResponse.options, "Options");
+    expect(parsedQuestionGroupResponse.options[0].title).toBe("West Indies");
+
+    res = await agent.get(`/elections/${latestElection.id}/questions/1`);
+    csrfToken = extractCsrfToken(res);
+    // Adding option 2 to question 1
+    const responseForOption2 = await agent.post(`/options`).send({
+      _csrf: csrfToken,
+      title: "United States Of America",
+      questionId: 1,
+    });
+    expect(responseForOption2.statusCode).toBe(302);
+    const questionGroupResponse2 = await agent
+      .get(`/elections/${latestElection.id}/questions/1`)
+      .set("Accept", "application/json");
+    const parsedQuestionGroupResponse2 = JSON.parse(
+      questionGroupResponse2.text
+    );
+    expect(parsedQuestionGroupResponse2.options).toBeDefined();
+    console.log(parsedQuestionGroupResponse2.options, "Options");
+    expect(parsedQuestionGroupResponse2.options[1].title).toBe(
+      "United States Of America"
+    );
+  });
+
+  test("Add voter to the election", async () => {
+    const agent = request.agent(server);
+    await login(agent, "user.a@test.com", "12345678");
+    let res = await agent.get("/elections");
+    let csrfToken = extractCsrfToken(res);
+
+    const groupedElectionsResponse = await agent
+      .get("/elections")
+      .set("Accept", "application/json");
+    const parsedGroupedResponse = JSON.parse(groupedElectionsResponse.text);
+
+    expect(parsedGroupedResponse.upcoming).toBeDefined();
+
+    const upcomingElectionsCount = parsedGroupedResponse.upcoming.length;
+    const latestElection =
+      parsedGroupedResponse.upcoming[upcomingElectionsCount - 1];
+
+    res = await agent.get(`/elections/${latestElection.id}/`);
+    csrfToken = extractCsrfToken(res);
+
+    // Adding first voter
+    const response = await agent.post(`/voters`).send({
+      _csrf: csrfToken,
+      voterId: "ABCD",
+      password: "12345678",
+      electionId: latestElection.id,
+    });
+    expect(response.statusCode).toBe(302);
+    const electionGroupResponse = await agent
+      .get(`/elections/${latestElection.id}/`)
+      .set("Accept", "application/json");
+    const parsedElectionGroupResponse = JSON.parse(electionGroupResponse.text);
+    expect(parsedElectionGroupResponse.voters).toBeDefined();
+    console.log(parsedElectionGroupResponse.voters, "Voters");
+    expect(parsedElectionGroupResponse.voters[0].voterId).toBe("ABCD");
+
+    res = await agent.get(`/elections/${latestElection.id}/`);
+    csrfToken = extractCsrfToken(res);
+
+    // Adding second voter
+    const response2 = await agent.post(`/voters`).send({
+      _csrf: csrfToken,
+      voterId: "ABCD1",
+      password: "12345678",
+      electionId: latestElection.id,
+    });
+    expect(response2.statusCode).toBe(302);
+    const electionGroupResponse2 = await agent
+      .get(`/elections/${latestElection.id}/`)
+      .set("Accept", "application/json");
+    const parsedElectionGroupResponse2 = JSON.parse(
+      electionGroupResponse2.text
+    );
+    expect(parsedElectionGroupResponse2.voters).toBeDefined();
+    console.log(parsedElectionGroupResponse2.voters, "Voters");
+    expect(parsedElectionGroupResponse2.voters[1].voterId).toBe("ABCD1");
+  });
+
   test("Delete the election", async () => {
     const agent = request.agent(server);
     await login(agent, "user.a@test.com", "12345678");
