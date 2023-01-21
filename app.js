@@ -579,7 +579,7 @@ const checkAuthenticated = async (request, response, next) => {
 };
 
 app.get(
-  "/elections/:id/vote",
+  "/elections/:id/vote/",
   checkAuthenticated,
   async function (request, response) {
     const election = await Election.findByPk(request.params.id);
@@ -604,20 +604,38 @@ app.get(
       });
     }
     const voter = await Voter.findByPk(request.user.id);
-    if (voter.voted === true && election.status === true) {
+    if (
+      voter.voted === true &&
+      election.status === true &&
+      request.accepts("html")
+    ) {
       return response.render("vote", {
         voter: voter,
         election: election,
         csrfToken: request.csrfToken(),
       });
+    } else if (voter.voted === true && election.status === true) {
+      return response.json({
+        election,
+        voter,
+      });
     }
-    return response.render("vote", {
-      questions: questions,
-      election: election,
-      options: options,
-      voter: request.user,
-      csrfToken: request.csrfToken(),
-    });
+
+    if (request.accepts("html")) {
+      return response.render("vote", {
+        questions: questions,
+        election: election,
+        options: options,
+        voter: request.user,
+        csrfToken: request.csrfToken(),
+      });
+    } else {
+      return response.json({
+        election,
+        voter,
+        csrfToken: request.csrfToken(),
+      });
+    }
   }
 );
 
@@ -627,8 +645,9 @@ app.post(
   async (request, response) => {
     console.log(request.body, "request");
     const election = await Election.findByPk(request.params.id);
+    console.log("Options votes", request.body);
     const votes = Object.values(request.body);
-    votes.pop();
+    votes.pop(); // pops out csrf token
     const options = votes.map((count) => parseInt(count));
     console.log(options);
     for (let i = 0; i < options.length; i++) {

@@ -19,7 +19,7 @@
         <form action="/elections/<%= election.id %>/voter-login" method="post">
           <div class="py-3">
             <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-            <label for="email">VoterID: </label>
+            <label for="voterId">VoterID: </label>
             <input
               name="voterId"
               type="text"

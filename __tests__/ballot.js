@@ -258,6 +258,96 @@ describe("Voting application tests", function () {
     expect(parsedElectionGroupResponse2.voters[1].voterId).toBe("ABCD1");
   });
 
+  test("Launch the election", async () => {
+    const agent = request.agent(server);
+    await login(agent, "user.a@test.com", "12345678");
+    let res = await agent.get("/elections");
+    let csrfToken = extractCsrfToken(res);
+
+    const groupedElectionsResponse = await agent
+      .get("/elections")
+      .set("Accept", "application/json");
+    const parsedGroupedResponse = JSON.parse(groupedElectionsResponse.text);
+
+    expect(parsedGroupedResponse.upcoming).toBeDefined();
+
+    const upcomingElectionsCount = parsedGroupedResponse.upcoming.length;
+    const latestElection =
+      parsedGroupedResponse.upcoming[upcomingElectionsCount - 1];
+
+    res = await agent.get(`/elections/${latestElection.id}/`);
+    csrfToken = extractCsrfToken(res);
+
+    const response = await agent.post(`/elections/start`).send({
+      _csrf: csrfToken,
+      id: latestElection.id,
+      status: true,
+    });
+    expect(response.statusCode).toBe(302);
+    const updatedGroupedElectionsResponse = await agent
+      .get("/elections")
+      .set("Accept", "application/json");
+    const parsedUpdatedGroupedResponse = JSON.parse(
+      updatedGroupedElectionsResponse.text
+    );
+    expect(parsedUpdatedGroupedResponse.liveElections).toBeDefined();
+    expect(parsedUpdatedGroupedResponse.liveElections[0].electionName).toBe(
+      "Cricket Venue"
+    );
+  });
+
+  test("Voter sign in", async () => {
+    const agent = request.agent(server);
+    await login(agent, "user.a@test.com", "12345678");
+    let res = await agent.get("/elections");
+    expect(res.statusCode).toBe(200);
+    res = await agent.get("/signout");
+    expect(res.statusCode).toBe(302);
+    response = await agent.get("/elections/2/voter-login/");
+    expect(response.statusCode).toBe(200);
+
+    // console.log("response login", res);
+    let csrfToken = extractCsrfToken(response);
+    response = await agent.post(`/elections/2/voter-login`).send({
+      voterId: "ABCD",
+      password: "12345678",
+      _csrf: csrfToken,
+    });
+    expect(response.statusCode).toBe(302);
+    const votePage = await agent
+      .get(`/elections/2/vote`)
+      .set("Accept", "application/json");
+
+    const parsedVotePage = JSON.parse(votePage.text);
+    expect(parsedVotePage.voter).toBeDefined();
+    expect(parsedVotePage.voter.voterId).toBe("ABCD");
+  });
+
+  test("Voter castes the vote", async () => {
+    console.log("Inside voting");
+    const agent = request.agent(server);
+    response = await agent.get("/elections/2/voter-login/");
+    expect(response.statusCode).toBe(200);
+    let csrfToken = extractCsrfToken(response);
+    response = await agent.post(`/elections/2/voter-login`).send({
+      voterId: "ABCD",
+      password: "12345678",
+      _csrf: csrfToken,
+    });
+    expect(response.statusCode).toBe(302);
+    const votePage = await agent
+      .get(`/elections/2/vote`)
+      .set("Accept", "application/json");
+    const parsedVotePage = JSON.parse(votePage.text);
+    console.log(parsedVotePage);
+    csrfToken = parsedVotePage.csrfToken;
+    await agent.post(`/elections/2/vote`).send({
+      1: "2",
+      _csrf: csrfToken,
+    });
+    expect(response.statusCode).toBe(302);
+  });
+
   test("Delete the election", async () => {
     const agent = request.agent(server);
     await login(agent, "user.a@test.com", "12345678");
