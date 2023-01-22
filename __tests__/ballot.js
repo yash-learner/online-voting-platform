@@ -348,6 +348,44 @@ describe("Voting application tests", function () {
     expect(response.statusCode).toBe(302);
   });
 
+  test("End the election", async () => {
+    const agent = request.agent(server);
+    await login(agent, "user.a@test.com", "12345678");
+    let res = await agent.get("/elections");
+    let csrfToken = extractCsrfToken(res);
+
+    const groupedElectionsResponse = await agent
+      .get("/elections")
+      .set("Accept", "application/json");
+    const parsedGroupedResponse = JSON.parse(groupedElectionsResponse.text);
+
+    expect(parsedGroupedResponse.upcoming).toBeDefined();
+
+    const liveElectionsCount = parsedGroupedResponse.liveElections.length;
+    const latestElection =
+      parsedGroupedResponse.liveElections[liveElectionsCount - 1];
+
+    res = await agent.get(`/elections/${latestElection.id}/`);
+    csrfToken = extractCsrfToken(res);
+
+    const response = await agent.post(`/elections/end`).send({
+      _csrf: csrfToken,
+      id: latestElection.id,
+      status: false,
+    });
+    expect(response.statusCode).toBe(302);
+    const updatedGroupedElectionsResponse = await agent
+      .get("/elections")
+      .set("Accept", "application/json");
+    const parsedUpdatedGroupedResponse = JSON.parse(
+      updatedGroupedElectionsResponse.text
+    );
+    expect(parsedUpdatedGroupedResponse.completed).toBeDefined();
+    expect(parsedUpdatedGroupedResponse.completed[0].electionName).toBe(
+      "Cricket Venue"
+    );
+  });
+
   test("Delete the election", async () => {
     const agent = request.agent(server);
     await login(agent, "user.a@test.com", "12345678");

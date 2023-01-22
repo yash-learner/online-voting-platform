@@ -543,7 +543,7 @@ app.post(
       userId: request.user.id,
       status: request.body.status,
     });
-    console.log("election is launched");
+    console.log("election is ended");
     return response.redirect(`/elections/${request.body.id}/vote`);
   }
 );
