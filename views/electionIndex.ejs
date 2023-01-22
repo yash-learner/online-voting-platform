@@ -43,26 +43,29 @@
   <body class="bg-gray-500 font-mono">
     <%- include('header.ejs', {title:"Online Voting Platform"})%>
     <div class="grid grid-cols-6">
-      <div class="col-start-3 col-span-3">
-        <% if(messages && messages.error && messages.error.length > 0)  { %>
-          <% for(var i=0; i<messages.error.length; i++) { %>
-                  <li> <span class="text-red-900 font-bold bg-gray-200 text-center" ><%= messages.error[i] %></span></li>
-          <% } %>
-        <% } %>
-      </div>
       <div class="col-start-3 col-span-2">
         <%if(election.status === true) {%>
-        <div class="flex space-x-3 p-2">
+        <div class="flex m-2">
           <span
             class="animate-ping absolute h-2.5 w-2.5 mt-2 p-2 rounded-full bg-red-600 opacity-100"
           ></span>
           <h3 class="ml-2 text-xl font-semibol text-center">
             Election is Live
           </h3>
-          <div class="">
-            <a href="/elections/<%= election.id %>/vote/"
+        </div>
+        <div class="flex space-x-3 p-2">
+          <div class="flex gap-2">
+            <input
+              type="text"
+              name=""
+              id="myText"
+              value="https://yaswanth-online-voting-platform.onrender.com/elections/<%= election.id %>/vote/"
+            />
+            <a href=""
               ><button
-                class="bg-purple-600 text-white px-5 py-1.5 rounded font-medium ml-2"
+                title="Click to copy"
+                onclick="copyContent()"
+                class="bg-purple-600 text-white px-5 py-1.5 rounded font-medium"
               >
                 Public Link
               </button></a
@@ -136,7 +139,7 @@
           <% if(election.status == null) { %>
           <form action="/questions" method="post">
             <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-            <div class="flex gap-2">
+            <div class="flex gap-2 mb-3">
               <div class="flex-auto">
                 <label class="mr-14" for="title">Title</label>
                 <input
@@ -177,7 +180,7 @@
         <% if(questions.length === 0) { %>
         <p class="mt-5">You haven't added any questions</p>
         <%} else {%>
-        <div><h2 class="mr-2 mt-5 text-xl font-black">Questions</h2></div>
+        <div><h2 class="ml-1 text-xl font-black">Questions</h2></div>
         <ul class="list-none">
           <% for(let i = 0; i < questions.length; i++) { %>
           <li class="question-Item">
@@ -370,13 +373,16 @@
               <div
                 class="flex my-2 px-2 py-1 items-center rounded hover:bg-purple-50"
               >
-                <div class="w-10">
+                <div class="w-20 mr-2">
                   <span class="text-sm text-black-800 cursor-pointer"
                     ><%= voters[i].voterId %></span
                   >
                 </div>
 
-                <a href="" class="block ml-2">
+                <a
+                  href="/elections/<%= election.id %>/voters/<%= voters[i].id%>/edit"
+                  class="block ml-2"
+                >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
@@ -431,6 +437,19 @@
       function closeForm(id) {
         document.getElementById(`optionForm-${id}`).style.display = "none";
       }
+      const copyContent = async () => {
+        var copyText = document.getElementById("myText");
+        copyText.select();
+        copyText.setSelectionRange(0, 99999);
+        navigator.clipboard
+          .writeText(copyText.value)
+          .then(() => {
+            alert("successfully copied");
+          })
+          .catch(() => {
+            alert("something went wrong");
+          });
+      };
     </script>
   </body>
 </html>

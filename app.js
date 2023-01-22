@@ -112,12 +112,24 @@ app.get("/login", (request, response) => {
 });
 
 app.get("/signout", (request, response, next) => {
-  request.logout((err) => {
-    if (err) {
-      return next(err);
-    }
-    response.redirect("/");
-  });
+  const electionId = request.user.electionId;
+  const user = request.user;
+  if ("firstName" in user) {
+    request.logout((err) => {
+      if (err) {
+        return next(err);
+      }
+      return response.redirect("/");
+    });
+  }
+  if (user.voterId !== undefined) {
+    request.logout((err) => {
+      if (err) {
+        return next(err);
+      }
+      return response.redirect(`/elections/${electionId}/vote`);
+    });
+  }
 });
 
 app.post(
@@ -214,6 +226,10 @@ app.post(
         name: request.body.electionName,
         userId: request.user.id,
       });
+      request.flash(
+        "success",
+        `${request.body.electionName} election is created`
+      );
       return response.redirect(`/elections/${election.id}`);
     } catch (error) {
       return response.status(422).json(error);
@@ -254,6 +270,7 @@ app.get(
 
 app.get(
   `/elections/:id/questions/new`,
+  connectEnsureLogin.ensureLoggedIn(),
   checkElectionAuthenticated,
   async (request, response) => {
     const election = await Election.findByPk(request.params.id);
@@ -261,43 +278,53 @@ app.get(
   }
 );
 
-app.post("/questions", async (request, response) => {
-  try {
-    await Question.create({
-      title: request.body.title,
-      description: request.body.description,
-      electionId: request.body.electionId,
-    });
-    return response.redirect(`/elections/${request.body.electionId}`);
-  } catch (error) {
-    return response.status(422).json(error);
+app.post(
+  "/questions",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (request, response) => {
+    try {
+      await Question.create({
+        title: request.body.title,
+        description: request.body.description,
+        electionId: request.body.electionId,
+      });
+      request.flash("success", `Question is added`);
+      return response.redirect(`/elections/${request.body.electionId}`);
+    } catch (error) {
+      return response.status(422).json(error);
+    }
   }
-});
+);
 
-app.get(`/elections/:id/questions/:questionId`, async (request, response) => {
-  const election = await Election.findByPk(request.params.id);
-  const question = await Question.findByPk(request.params.questionId);
-  const options = await Option.getOptions(request.params.questionId);
-  console.log(options, "Options");
-  if (request.accepts("html")) {
-    return response.render("questionIndex", {
-      election: election,
-      question: question,
-      options: options,
-      userName: request.user.firstName,
-      csrfToken: request.csrfToken(),
-    });
-  } else {
-    response.json({
-      election,
-      question,
-      options,
-    });
+app.get(
+  `/elections/:id/questions/:questionId`,
+  connectEnsureLogin.ensureLoggedIn(),
+  async (request, response) => {
+    const election = await Election.findByPk(request.params.id);
+    const question = await Question.findByPk(request.params.questionId);
+    const options = await Option.getOptions(request.params.questionId);
+    console.log(options, "Options");
+    if (request.accepts("html")) {
+      return response.render("questionIndex", {
+        election: election,
+        question: question,
+        options: options,
+        userName: request.user.firstName,
+        csrfToken: request.csrfToken(),
+      });
+    } else {
+      response.json({
+        election,
+        question,
+        options,
+      });
+    }
   }
-});
+);
 
 app.get(
   `/elections/:id/questions/:id/options/new`,
+  connectEnsureLogin.ensureLoggedIn(),
   async (request, response) => {
     response.render("newOption", { userName: request.user.firstName });
   }
@@ -305,6 +332,7 @@ app.get(
 
 app.get(
   "/elections/:electionId/questions/:questionId/options/:id",
+  connectEnsureLogin.ensureLoggedIn(),
   async (request, response) => {
     console.log(request.params.electionId);
     const election = await Election.findByPk(request.params.electionId);
@@ -368,24 +396,30 @@ app.delete(
   }
 );
 
-app.post("/options", async (request, response) => {
-  try {
-    await Option.create({
-      title: request.body.title,
-      questionId: request.body.questionId,
-      count: 0,
-    });
-    console.log("Option Added", request.body.electionId);
-    response.redirect(
-      `/elections/${request.body.electionId}/questions/${request.body.questionId}`
-    );
-  } catch (error) {
-    return response.status(422).json(error);
+app.post(
+  "/options",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (request, response) => {
+    try {
+      await Option.create({
+        title: request.body.title,
+        questionId: request.body.questionId,
+        count: 0,
+      });
+      console.log("Option Added", request.body.electionId);
+      request.flash("success", `Option is added`);
+      response.redirect(
+        `/elections/${request.body.electionId}/questions/${request.body.questionId}`
+      );
+    } catch (error) {
+      return response.status(422).json(error);
+    }
   }
-});
+);
 
 app.get(
   "/elections/:electionId/questions/:id/edit",
+  connectEnsureLogin.ensureLoggedIn(),
   async (request, response) => {
     const election = await Election.findByPk(request.params.electionId);
     const question = await Question.findByPk(request.params.id);
@@ -398,54 +432,131 @@ app.get(
   }
 );
 
-app.get("/elections/:id/edit", async (request, response) => {
-  const election = await Election.findByPk(request.params.id);
-  response.render("editElectionName", {
-    election,
-    userName: request.user.firstName,
-    csrfToken: request.csrfToken(),
-  });
-});
-
-app.put("/elections/:id", async (request, response) => {
-  try {
-    console.log("update election name", request.body.title);
-    await Election.editElectionName(
-      request.params.id,
-      request.body.title,
-      request.user.id
-    );
-    return response.redirect(`/elections`);
-  } catch (error) {
-    return response.status(422).json(error);
+app.get(
+  "/elections/:electionId/voters/:id/edit",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (request, response) => {
+    const election = await Election.findByPk(request.params.electionId);
+    const voter = await Voter.findByPk(request.params.id);
+    response.render("editVoter", {
+      election,
+      voter,
+      userName: request.user.firstName,
+      csrfToken: request.csrfToken(),
+    });
   }
-});
+);
 
-app.put("/questions/:id", async (request, response) => {
-  try {
-    await Question.editQuestion(
-      request.params.id,
-      request.body.title,
-      request.body.description
-    );
-  } catch (error) {
-    return response.status(422).json(error);
+app.put(
+  "/voters/:id",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (request, response) => {
+    console.log("Inside voter update");
+    const election = await Election.findByPk(request.body.electionId);
+    try {
+      if (
+        election.userId === request.user.id &&
+        request.body.password.length > 0 &&
+        request.body.voterId.length > 0
+      ) {
+        const hashedPwd = await bcrypt.hash(request.body.password, saltRounds);
+        await Voter.editVoter(
+          request.params.id,
+          request.body.voterId,
+          hashedPwd,
+          request.body.voterId + request.body.electionId
+        );
+        return response.redirect(`/elections/${election.id}`);
+      } else {
+        request.flash("error", "Fields can not be empty");
+        return response
+          .status(401)
+          .send({ message: "Fields can not be empty" });
+      }
+    } catch (error) {
+      if (error.name === "SequelizeUniqueConstraintError") {
+        request.flash(
+          "error",
+          "Voter Id must be unique for voters in a election"
+        );
+        return response.redirect(
+          `/elections/${election.id}/voters/${request.params.id}/edit`
+        );
+      }
+      return response.status(422).json(error);
+    }
   }
-});
+);
 
-app.get("/elections/new", (request, response) => {
-  return response.render("newElection");
-});
-
-app.delete("/elections/:id", async (request, response) => {
-  connectEnsureLogin.ensureLoggedIn();
-  try {
-    await Election.deleteElection(request.params.id, request.user.id);
-    return response.json(true);
-  } catch (error) {
-    return response.status(422).json(error);
+app.get(
+  "/elections/:id/edit",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (request, response) => {
+    const election = await Election.findByPk(request.params.id);
+    response.render("editElectionName", {
+      election,
+      userName: request.user.firstName,
+      csrfToken: request.csrfToken(),
+    });
   }
-});
+);
+
+app.put(
+  "/elections/:id",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (request, response) => {
+    try {
+      console.log("update election name", request.body.title);
+
+      await Election.editElectionName(
+        request.params.id,
+        request.body.title,
+        request.user.id
+      );
+      return response.redirect(`/elections`);
+    } catch (error) {
+      return response.status(422).json(error);
+    }
+  }
+);
+
+app.put(
+  "/questions/:id",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (request, response) => {
+    try {
+      await Question.editQuestion(
+        request.params.id,
+        request.body.title,
+        request.body.description
+      );
+    } catch (error) {
+      return response.status(422).json(error);
+    }
+  }
+);
+
+app.get(
+  "/elections/new",
+  connectEnsureLogin.ensureLoggedIn(),
+  (request, response) => {
+    return response.render("newElection");
+  }
+);
+
+app.delete(
+  "/elections/:id",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (request, response) => {
+    connectEnsureLogin.ensureLoggedIn();
+    try {
+      await Election.deleteElection(request.params.id, request.user.id);
+      return response.json(true);
+    } catch (error) {
+      return response.status(422).json(error);
+    }
+  }
+);
 
 app.post("/voters", async (request, response) => {
   const hashedPwd = await bcrypt.hash(request.body.password, saltRounds);
@@ -457,8 +568,16 @@ app.post("/voters", async (request, response) => {
       electionId: request.body.electionId,
     });
     console.log("Voter Added", request.body.electionId);
+    request.flash("success", `Voter is added to the election`);
     response.redirect(`/elections/${request.body.electionId}/`);
   } catch (error) {
+    if (error.name === "SequelizeUniqueConstraintError") {
+      request.flash(
+        "error",
+        "Voter Id must be unique for voters in a election"
+      );
+      return response.redirect(`/elections/${request.body.electionId}`);
+    }
     return response.status(422).json(error);
   }
 });
@@ -544,6 +663,7 @@ app.post(
       status: request.body.status,
     });
     console.log("election is ended");
+    request.flash("success", "Election is ended");
     return response.redirect(`/elections/${request.body.id}/vote`);
   }
 );
@@ -570,12 +690,16 @@ app.post(
 
 const checkAuthenticated = async (request, response, next) => {
   const election = await Election.findByPk(request.params.id);
-  if (election.status === true && request.isAuthenticated()) {
-    return next();
-  } else if (election.status === false) {
-    return next();
+  try {
+    if (election.status === true && request.isAuthenticated()) {
+      return next();
+    } else if (election.status === false) {
+      return next();
+    }
+    return response.redirect(`/elections/${request.params.id}/voter-login`);
+  } catch (error) {
+    return response.redirect(`/`);
   }
-  response.redirect(`/elections/${request.params.id}/voter-login`);
 };
 
 app.get(
@@ -588,6 +712,10 @@ app.get(
     const castedVotersCount = await Voter.getCastedVotersCount(election.id);
     console.log(election, questions);
     console.log(request.user, "Hello");
+    if (request.user.voted === undefined && election.status === true) {
+      request.flash("error", "You are not a registered voter");
+      return response.redirect("/elections");
+    }
     let options = {};
     for (let i = 0; i < questions.length; i++) {
       let questionOptions = await Option.getOptionsForResults(questions[i].id);
@@ -660,26 +788,30 @@ app.post(
   }
 );
 
-app.get("/elections/:id/results", async (request, response) => {
-  const election = await Election.findByPk(request.params.id);
-  const questions = await Question.getAllQuestions(election.id);
-  const votersCount = await Voter.getVotersCount(election.id);
-  const castedVotersCount = await Voter.getCastedVotersCount(election.id);
-  let options = {};
-  for (let i = 0; i < questions.length; i++) {
-    let questionOptions = await Option.getOptionsForResults(questions[i].id);
-    options[i] = questionOptions;
+app.get(
+  "/elections/:id/results",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (request, response) => {
+    const election = await Election.findByPk(request.params.id);
+    const questions = await Question.getAllQuestions(election.id);
+    const votersCount = await Voter.getVotersCount(election.id);
+    const castedVotersCount = await Voter.getCastedVotersCount(election.id);
+    let options = {};
+    for (let i = 0; i < questions.length; i++) {
+      let questionOptions = await Option.getOptionsForResults(questions[i].id);
+      options[i] = questionOptions;
+    }
+    response.render("results", {
+      election,
+      questions,
+      options,
+      userName: request.user.firstName,
+      votersCount,
+      castedVotersCount,
+      csrfToken: request.csrfToken(),
+    });
   }
-  response.render("results", {
-    election,
-    questions,
-    options,
-    userName: request.user.firstName,
-    votersCount,
-    castedVotersCount,
-    csrfToken: request.csrfToken(),
-  });
-});
+);
 
 app.get("/", function (request, response) {
   if (request.user === undefined) {

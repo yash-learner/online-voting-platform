@@ -11,6 +11,13 @@
   <body class="bg-gray-500 font-mono">
     <%- include('header.ejs', {title:"Online Voting Platform"})%>
     <div class="grid grid-cols-6">
+      <div class="col-start-3 col-span-3">
+        <% if(messages && messages.success && messages.success.length > 0)  { %>
+          <% for(var i=0; i<messages.success.length; i++) { %>
+                  <li> <span class="text-lime-500 font-bold bg-gray-500 text-center" ><%= messages.success[i] %></span></li>
+          <% } %>
+        <% } %>
+      </div>
       <div class="col-start-3 col-span-2 py-5">
         <div class="mt-5">
           <a href="/elections/<%= election.id%>"

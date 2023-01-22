@@ -61,6 +61,23 @@ module.exports = (sequelize, DataTypes) => {
         }
       );
     }
+
+    static async editVoter(id, voterId, password, voterIdPlusElectionId) {
+      console.log("Inside model");
+      return await Voter.update(
+        {
+          voterId: voterId,
+          password: password,
+          voterIdPlusElectionId: voterIdPlusElectionId,
+        },
+        {
+          where: {
+            id,
+          },
+        }
+      );
+    }
+
     static async deleteVoter(id) {
       return this.destroy({
         where: {

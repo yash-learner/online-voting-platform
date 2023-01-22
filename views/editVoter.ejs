@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="csrf-token" content="<%= csrfToken %>" />
+    <title><%= voter.voterId%> | Edit Voter</title>
+    <link rel="stylesheet" href="./css/styles.css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      const token = document
+        .querySelector('meta[name="csrf-token"]')
+        .getAttribute("content");
+      function updateVoter(id) {
+        const voterId = document.getElementById("voter-voterId").value;
+        const electionId = document.getElementById("electionId").value;
+        const password = document.getElementById("voter-password").value;
+        fetch(`/voters/${id}`, {
+          method: "put",
+          headers: { "Content-Type": "application/json", redirect: "follow" },
+          body: JSON.stringify({
+            voterId,
+            electionId,
+            password,
+            _csrf: token,
+          }),
+        })
+          .then((response) => {
+            console.log(response);
+            if (response.status == 401) {
+              return (window.location.href = `/elections/${electionId}/voters/<%= voter.id %>/edit`);
+            }
+            return (window.location.href = `/elections/${electionId}`);
+          })
+          .catch((err) => console.error(err));
+      }
+    </script>
+  </head>
+  <body class="bg-gray-500 font-mono">
+    <%- include('header.ejs', {title:"Online Voting Platform"})%>
+    <div class="grid grid-cols-6">
+      <div class="col-start-3 col-span-2 py-10">
+        <div class="mt-5">
+          <a href="/elections/<%= election.id %>"
+            ><h2 class="text-2xl font-black">
+              <%= election.electionName %>
+            </h2></a
+          >
+        </div>
+        <div class="py-3">
+          <label for="voterId">VoterID</label>
+          <input
+            required
+            id="voter-voterId"
+            name="voterId"
+            type="text"
+            placeholder="Type your new Voter ID here!"
+            class="border border-gray-300 text-gray-900 text-sm rounded w-full p-2"
+            autofocus
+            value="<%= voter.voterId %>"
+          />
+        </div>
+        <div class="flex-auto">
+          <label class="mr-14" for="password">password</label>
+          <input
+            required
+            id="voter-password"
+            name="password"
+            type="password"
+            placeholder="*******"
+            class="border border-gray-300 text-gray-900 text-sm rounded w-full p-2"
+            title="Type the new password here"
+          />
+        </div>
+        <input
+          type="hidden"
+          id="electionId"
+          name="electionId"
+          value="<%= election.id %>"
+        />
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+        <div class="py-3">
+          <button
+            onclick="updateVoter(<%= voter.id %>)"
+            type="submit"
+            class="text-white bg-green-600 hover:bg-green-700 font-medium rounded text-sm px-5 py-2 mr-2 mb-2"
+          >
+            Update
+          </button>
+        </div>
+      </div>
+    </div>
+    <li>
+      <span
+        class="text-red-900 font-bold bg-gray-200 text-center"
+        id="display-error"
+      ></span>
+    </li>
+  </body>
+</html>

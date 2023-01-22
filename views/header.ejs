@@ -23,7 +23,7 @@
     <div class="">
       <button
         type="button"
-        class="flex-auto bg-red-700 text-white px-2 py-2 rounded font-small"
+        class="flex-auto bg-red-600 text-white px-2 py-2 rounded font-small"
       >
         <a href="/signout"><p class="text-end">Sign Out</p></a>
       </button>
@@ -31,3 +31,19 @@
   </div>
 </nav>
 <hr class="my-5 h-px bg-gray-200 border-0 dark:bg-gray-700" />
+<div class="grid grid-cols-6">
+  <div class="col-start-3 col-span-3">
+    <% if(messages && messages.error && messages.error.length > 0)  { %>
+      <% for(var i=0; i<messages.error.length; i++) { %>
+              <li> <span class="text-red-900 font-bold bg-gray-200 text-center" ><%= messages.error[i] %></span></li>
+      <% } %>
+    <% } %>
+  </div>
+  <div class="col-start-3 col-span-3">
+    <% if(messages && messages.success && messages.success.length > 0)  { %>
+      <% for(var i=0; i<messages.success.length; i++) { %>
+              <li> <span class="text-lime-500 font-bold bg-gray-500 text-center" ><%= messages.success[i] %></span></li>
+      <% } %>
+    <% } %>
+  </div>
+</div>
