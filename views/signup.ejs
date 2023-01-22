@@ -10,7 +10,7 @@
   </head>
   <body class="bg-gray-500">
     <div class="grid grid-cols-6">
-      <div class="col-start-3 col-span-2 py-10">
+      <div class="col-start-3 col-span-2 pt-10">
         <p class="m-4 text-center text-3xl font-semibold text-gray-900">
           Online Voting Platform!
         </p>
@@ -80,6 +80,13 @@
             </button>
           </div>
         </form>
+      </div>
+      <div class="col-start-3 col-span-3 mb-15">
+        <% if(messages && messages.error && messages.error.length > 0)  { %>
+          <% for(var i=0; i<messages.error.length; i++) { %>
+                  <li> <span class="m-1 mr-5 text-red-900 font-bold bg-gray-200 text-center" ><%= messages.error[i] %></span></li>
+          <% } %>
+        <% } %>
       </div>
     </div>
   </body>
