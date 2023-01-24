@@ -591,14 +591,22 @@ app.put(
   connectEnsureLogin.ensureLoggedIn(),
   validateUserForQuestion,
   async (request, response) => {
+    const electionId = request.body.electionId;
     try {
       await Question.editQuestion(
         request.params.id,
         request.body.title,
         request.body.description
       );
+      request.flash("success", "Question is updated");
+      return response.redirect(`/elections/${electionId}`);
     } catch (error) {
-      return response.status(422).json(error);
+      if (error.name === "SequelizeValidationError") {
+        request.flash("error", "Question title can not be empty");
+        return response
+          .status(401)
+          .send({ message: "Fields can not be empty" });
+      }
     }
   }
 );

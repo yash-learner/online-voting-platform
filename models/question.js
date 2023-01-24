@@ -30,7 +30,7 @@ module.exports = (sequelize, DataTypes) => {
     }
 
     static async editQuestion(id, title, description) {
-      question = await Question.update(
+      return await Question.update(
         { title: title, description: description },
         {
           where: {
@@ -38,7 +38,6 @@ module.exports = (sequelize, DataTypes) => {
           },
         }
       );
-      console.log(question);
     }
 
     static async deleteQuestion(id) {
@@ -59,7 +58,13 @@ module.exports = (sequelize, DataTypes) => {
   }
   Question.init(
     {
-      title: DataTypes.STRING,
+      title: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        validate: {
+          notEmpty: { msg: "Question title can not be empty" },
+        },
+      },
       description: DataTypes.STRING,
       electionId: DataTypes.INTEGER,
     },
