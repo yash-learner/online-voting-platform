@@ -173,8 +173,9 @@ app.post("/users", async function (request, response) {
 
 const checkElectionAuthenticated = async (request, response, next) => {
   try {
+    console.log(request.params, request, "Indide checkauth");
     let election;
-    if ("electionId" in request.params) {
+    if (request.params.electionId !== undefined) {
       election = await Election.findByPk(request.params.electionId);
     } else {
       election = await Election.findByPk(request.params.id);
@@ -372,9 +373,39 @@ app.get(
   }
 );
 
+const validateUserForOption = async (request, response, next) => {
+  console.log("Inside option validate");
+  try {
+    const option = await Option.findByPk(request.params.id);
+    const question = await Question.findByPk(option.questionId);
+    const election = await Election.findByPk(question.electionId);
+    if (election.userId === request.user.id) {
+      return next();
+    }
+  } catch (error) {
+    request.flash("error", `Access Denied /!\\`);
+    return response.redirect("/elections");
+  }
+};
+
+const validateUserForQuestion = async (request, response, next) => {
+  console.log("Inside question validate");
+  try {
+    const question = await Question.findByPk(request.params.id);
+    const election = await Election.findByPk(question.electionId);
+    if (election.userId === request.user.id) {
+      return next();
+    }
+  } catch (error) {
+    request.flash("error", `Access Denied /!\\`);
+    return response.redirect("/elections");
+  }
+};
+
 app.put(
   "/options/:id",
   connectEnsureLogin.ensureLoggedIn(),
+  validateUserForOption,
   async (request, response) => {
     try {
       console.log(
@@ -405,6 +436,7 @@ app.put(
 app.delete(
   "/questions/:id",
   connectEnsureLogin.ensureLoggedIn(),
+  validateUserForQuestion,
   async (request, response) => {
     try {
       await Question.deleteQuestion(request.params.id);
@@ -418,6 +450,7 @@ app.delete(
 app.delete(
   "/options/:id",
   connectEnsureLogin.ensureLoggedIn(),
+  validateUserForOption,
   async (request, response) => {
     try {
       await Option.deleteOption(request.params.id);
@@ -452,6 +485,7 @@ app.post(
 app.get(
   "/elections/:electionId/questions/:id/edit",
   connectEnsureLogin.ensureLoggedIn(),
+  validateUserForQuestion,
   async (request, response) => {
     const election = await Election.findByPk(request.params.electionId);
     const question = await Question.findByPk(request.params.id);
@@ -555,6 +589,7 @@ app.put(
 app.put(
   "/questions/:id",
   connectEnsureLogin.ensureLoggedIn(),
+  validateUserForQuestion,
   async (request, response) => {
     try {
       await Question.editQuestion(
