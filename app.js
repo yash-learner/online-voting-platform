@@ -573,7 +573,6 @@ app.put(
   async (request, response) => {
     try {
       console.log("update election name", request.body.title);
-
       await Election.editElectionName(
         request.params.id,
         request.body.title,
@@ -581,6 +580,12 @@ app.put(
       );
       return response.redirect(`/elections`);
     } catch (error) {
+      if (error.name === "SequelizeValidationError") {
+        request.flash("error", "Election name can not be empty");
+        return response
+          .status(401)
+          .send({ message: "Fields can not be empty" });
+      }
       return response.status(422).json(error);
     }
   }

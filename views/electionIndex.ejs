@@ -43,29 +43,25 @@
   <body class="bg-gray-500 font-mono">
     <%- include('header.ejs', {title:"Online Voting Platform"})%>
     <div class="grid grid-cols-6">
-      <div class="col-start-3 col-span-2">
+      <div class="min-[700px]:col-start-3 min-[700px]:col-span-2 min-[280px]:max-[699px]:col-start-2 min-[280px]:max-[699px]:col-span-3">
         <%if(election.status === true) {%>
-        <div class="flex m-2">
-          <span
-            class="animate-ping absolute h-2.5 w-2.5 mt-2 p-2 rounded-full bg-red-600 opacity-100"
-          ></span>
-          <h3 class="ml-2 text-xl font-semibol text-center">
-            Election is Live
-          </h3>
-        </div>
-        <div class="flex space-x-3 p-2">
-          <div class="flex gap-2">
-            <input
-              type="text"
-              name=""
-              id="myText"
-              value="https://yaswanth-online-voting-platform.onrender.com/elections/<%= election.id %>/vote/"
-            />
-            <a href=""
+        <div class="flex justify-between m-2 gap-2">
+          <div class="">
+            <span
+              class="animate-ping absolute h-2.5 w-2.5 mt-2 p-2 rounded-full bg-green-600 opacity-100"
+            ></span>
+            <h3
+              class="ml-2 text-xl font-semibold text-green-600 bg-gray-200 text-center"
+            >
+              Election is Live
+            </h3>
+          </div>
+          <div class="">
+            <a href="/elections/<%= election.id %>/vote" onclick="return false;"
               ><button
                 title="Click to copy"
                 onclick="copyContent()"
-                class="bg-purple-600 text-white px-5 py-1.5 rounded font-medium"
+                class="w-full h-full bg-purple-600 text-white px-3 py-1.5 rounded font-medium"
               >
                 Public Link
               </button></a
@@ -79,61 +75,66 @@
           Election is Ended
         </h3>
         <%}%>
-        <div class="mt-5 space-x-3 flex p-2">
+        <div class="mt-5 space-x-3 flex justify-between p-2">
           <a href="/elections"
             ><h2 class="text-2xl font-black">
               <%= election.electionName %>
             </h2></a
           >
           <% if(election.status == null ) {%>
-          <div class="">
-            <a href="/elections/<%= election.id %>/preview/"
-              ><button
-                class="bg-purple-600 text-white px-5 py-1.5 rounded font-medium mr-2"
+          <div class="flex">
+            <div class="">
+              <a href="/elections/<%= election.id %>/preview/"
+                ><button
+                  class="bg-purple-600 text-white px-5 py-1.5 rounded font-medium mr-2"
+                >
+                  Preview
+                </button></a
               >
-                Preview
-              </button></a
-            >
-          </div>
-          <div class="">
-            <form action="/elections/start" method="post">
-              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-              <input type="hidden" name="status" value="true" />
-              <input type="hidden" name="id" value="<%=election.id%>" />
-              <button
-                class="bg-green-600 text-white px-5 py-1.5 rounded font-medium mr-2"
-              >
-                Launch
-              </button>
-            </form>
+            </div>
+            <div class="">
+              <form action="/elections/start" method="post">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <input type="hidden" name="status" value="true" />
+                <input type="hidden" name="id" value="<%=election.id%>" />
+                <button
+                  class="bg-green-600 text-white px-5 py-1.5 rounded font-medium mr-2"
+                >
+                  Launch
+                </button>
+              </form>
+            </div>
           </div>
           <%} else {%>
-          <div class="">
-            <form action="/elections/<%=election.id%>/results" method="get">
-              <input type="hidden" name="status" value="true" />
-              <input type="hidden" name="id" value="<%=election.id%>" />
-              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-              <button
-                class="bg-green-600 text-white px-5 py-1.5 rounded font-medium mr-2"
-              >
-                Result
-              </button>
-            </form>
+          <div class="flex">
+            <div class="">
+              <form action="/elections/<%=election.id%>/results" method="get">
+                <input type="hidden" name="status" value="true" />
+                <input type="hidden" name="id" value="<%=election.id%>" />
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <button
+                  class="bg-green-600 text-white px-5 py-1.5 rounded font-medium mr-2"
+                >
+                  Result
+                </button>
+              </form>
+            </div>
+            <% if(election.status === true) {%>
+            <div class="">
+              <form action="/elections/end" method="post">
+                <input type="hidden" name="status" value="false" />
+                <input type="hidden" name="id" value="<%=election.id%>" />
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <button
+                  class="bg-red-600 text-white px-5 py-1.5 rounded font-medium"
+                >
+                  End
+                </button>
+              </form>
+            </div>
+            <% } %>
           </div>
-          <% if(election.status === true) {%>
-          <div class="">
-            <form action="/elections/end" method="post">
-              <input type="hidden" name="status" value="false" />
-              <input type="hidden" name="id" value="<%=election.id%>" />
-              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-              <button
-                class="bg-red-600 text-white px-5 py-1.5 rounded font-medium mr-2"
-              >
-                End
-              </button>
-            </form>
-          </div>
-          <% } %> <% } %>
+           <% } %>
         </div>
         <div class="flex mt-5">
           <% if(election.status == null) { %>
@@ -260,12 +261,15 @@
                 </svg>
               </button>
               <% } else {%>
-              <label
+              <div class="flex-auto">
+                <label
                 title="<%=questions[i].description%>"
                 for="question-checkbox-<%= questions[i].id %>"
                 class="ml-2 text-lg font-normal text-black-600 cursor-pointer"
                 ><%= questions[i].title %></label
               >
+              </div>
+
               <% } %>
               <div
                 class="form-popup z-9 hidden"
@@ -438,11 +442,11 @@
         document.getElementById(`optionForm-${id}`).style.display = "none";
       }
       const copyContent = async () => {
-        var copyText = document.getElementById("myText");
-        copyText.select();
-        copyText.setSelectionRange(0, 99999);
+        // var copyText = document.getElementById("myText");
+        // copyText.select();
+        // copyText.setSelectionRange(0, 99999);
         navigator.clipboard
-          .writeText(copyText.value)
+          .writeText(window.location.href + "/vote")
           .then(() => {
             alert("successfully copied");
           })

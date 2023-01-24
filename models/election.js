@@ -114,7 +114,7 @@ module.exports = (sequelize, DataTypes) => {
     }
 
     static async editElectionName(id, title, userId) {
-      question = await Election.update(
+      return await Election.update(
         { electionName: title },
         {
           where: {
@@ -123,12 +123,17 @@ module.exports = (sequelize, DataTypes) => {
           },
         }
       );
-      console.log(question);
     }
   }
   Election.init(
     {
-      electionName: DataTypes.STRING,
+      electionName: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        validate: {
+          notEmpty: { msg: "Election name can not be empty" },
+        },
+      },
       status: DataTypes.BOOLEAN,
       userId: DataTypes.INTEGER,
     },
