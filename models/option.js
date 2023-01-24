@@ -68,7 +68,13 @@ module.exports = (sequelize, DataTypes) => {
   }
   Option.init(
     {
-      title: DataTypes.STRING,
+      title: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        validate: {
+          notEmpty: { msg: "Option title can not be empty" },
+        },
+      },
       questionId: DataTypes.INTEGER,
       count: DataTypes.INTEGER,
     },

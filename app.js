@@ -172,22 +172,33 @@ app.post("/users", async function (request, response) {
 });
 
 const checkElectionAuthenticated = async (request, response, next) => {
-  const election = await Election.findByPk(request.params.id);
-  if (request.isAuthenticated() && election.userId === request.user.id) {
-    return next();
-  } else if (
-    request.isAuthenticated() &&
-    election.userId !== request.user.id &&
-    request.user.electionId === undefined
-  ) {
+  try {
+    let election;
+    if ("electionId" in request.params) {
+      election = await Election.findByPk(request.params.electionId);
+    } else {
+      election = await Election.findByPk(request.params.id);
+    }
+    if (request.isAuthenticated() && election.userId === request.user.id) {
+      return next();
+    } else if (
+      request.isAuthenticated() &&
+      election.userId !== request.user.id &&
+      request.user.electionId === undefined
+    ) {
+      return response.redirect("/elections");
+    } else if (
+      request.isAuthenticated() &&
+      request.user.electionId === election.id
+    ) {
+      return response.redirect(`/elections/${election.id}/vote`);
+    }
+    return response.redirect("/");
+  } catch (error) {
+    // response.status(422).json(error);
+    request.flash("error", "Page not found");
     return response.redirect("/elections");
-  } else if (
-    request.isAuthenticated() &&
-    request.user.electionId === election.id
-  ) {
-    return response.redirect(`/elections/${election.id}/vote`);
   }
-  return response.redirect("/");
 };
 
 app.get(
@@ -299,53 +310,65 @@ app.post(
 app.get(
   `/elections/:id/questions/:questionId`,
   connectEnsureLogin.ensureLoggedIn(),
+  checkElectionAuthenticated,
   async (request, response) => {
     const election = await Election.findByPk(request.params.id);
     const question = await Question.findByPk(request.params.questionId);
     const options = await Option.getOptions(request.params.questionId);
-    console.log(options, "Options");
-    if (request.accepts("html")) {
-      return response.render("questionIndex", {
-        election: election,
-        question: question,
-        options: options,
-        userName: request.user.firstName,
-        csrfToken: request.csrfToken(),
-      });
-    } else {
-      response.json({
-        election,
-        question,
-        options,
-      });
+    try {
+      console.log(options, "Options");
+      if (question === null) {
+        request.flash("error", "Page not found");
+        return response.redirect(`/elections/${election.id}/`);
+      }
+      if (request.accepts("html")) {
+        return response.render("questionIndex", {
+          election: election,
+          question: question,
+          options: options,
+          userName: request.user.firstName,
+          csrfToken: request.csrfToken(),
+        });
+      } else {
+        response.json({
+          election,
+          question,
+          options,
+        });
+      }
+    } catch (error) {
+      request.flash("error", "Page not found");
+      return response.redirect(`/elections/${election.id}/`);
     }
   }
 );
 
 app.get(
-  `/elections/:id/questions/:id/options/new`,
+  "/elections/:electionId/questions/:questionId/options/:id/edit",
   connectEnsureLogin.ensureLoggedIn(),
-  async (request, response) => {
-    response.render("newOption", { userName: request.user.firstName });
-  }
-);
-
-app.get(
-  "/elections/:electionId/questions/:questionId/options/:id",
-  connectEnsureLogin.ensureLoggedIn(),
+  checkElectionAuthenticated,
   async (request, response) => {
     console.log(request.params.electionId);
     const election = await Election.findByPk(request.params.electionId);
-    const question = await Question.findByPk(request.params.questionId);
-    const option = await Option.findByPk(request.params.id);
-    console.log(election, question, option);
-    return response.render("editOption", {
-      election: election,
-      question: question,
-      option: option,
-      userName: request.user.firstName,
-      csrfToken: request.csrfToken(),
-    });
+    try {
+      const question = await Question.findByPk(request.params.questionId);
+      const option = await Option.findByPk(request.params.id);
+      console.log("Inside option edit", election, question, option);
+      if (question === null || option === null) {
+        request.flash("error", "Page not found");
+        return response.redirect(`/elections/${election.id}/`);
+      }
+      return response.render("editOption", {
+        election: election,
+        question: question,
+        option: option,
+        userName: request.user.firstName,
+        csrfToken: request.csrfToken(),
+      });
+    } catch (error) {
+      request.flash("error", "Page not found");
+      return response.redirect(`/elections/${election.id}/`);
+    }
   }
 );
 
@@ -365,6 +388,15 @@ app.put(
         `/elections/${request.body.electionId}/questions/${request.body.questionId}`
       );
     } catch (error) {
+      if (error.name === "SequelizeValidationError") {
+        request.flash(
+          "error",
+          error.errors.map((error) => error.message)
+        );
+        return response.redirect(
+          `/elections/${request.body.electionId}/questions/${request.body.questionId}/options/${request.params.id}/edit`
+        );
+      }
       return response.status(422).json(error);
     }
   }
