@@ -33,14 +33,14 @@
       <div class="col-start-3 col-span-2">
         <div class="mt-5">
           <a href="/elections/<%= election.id%>"
-            ><h2 class="text-2xl font-black">
+            ><h2 class="text-2xl font-black capitalize">
               <%= election.electionName %>
             </h2></a
           >
         </div>
         <div class="mt-5">
-          <h3 class="text-xl font-black"><%=question.title%></h3>
-          <span class="text-sm font-normal"><%=question.description%></span>
+          <h3 class="text-xl font-black capitalize"><%=question.title%></h3>
+          <span class="text-sm font-normal normalcase"><%=question.description%></span>
         </div>
         <div class="flex mt-3">
           <form action="/options" method="post">
@@ -86,7 +86,7 @@
               <div
                 class="flex w-fit my-2 px-2 py-1 items-center rounded hover:bg-purple-50"
               >
-                <span class="ml-2 text-sm text-black-800 cursor-pointer"
+                <span class="ml-2 text-sm text-black-800 cursor-pointer capitalize"
                   ><%= options[i].title %></span
                 >
                 <a

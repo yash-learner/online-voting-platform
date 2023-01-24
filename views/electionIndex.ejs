@@ -77,7 +77,7 @@
         <%}%>
         <div class="mt-5 space-x-3 flex justify-between p-2">
           <a href="/elections"
-            ><h2 class="text-2xl font-black">
+            ><h2 class="text-2xl font-black capitalize">
               <%= election.electionName %>
             </h2></a
           >
@@ -195,7 +195,7 @@
                 <label
                   title="Click for going to question Page of <%=questions[i].description%>"
                   for="question-checkbox-<%= questions[i].id %>"
-                  class="ml-2 text-lg font-normal text-black-600 cursor-pointer"
+                  class="ml-2 text-lg font-normal text-black-600 cursor-pointer capitalize"
                   ><%= questions[i].title %></label
                 >
               </a>
@@ -265,7 +265,7 @@
                 <label
                 title="<%=questions[i].description%>"
                 for="question-checkbox-<%= questions[i].id %>"
-                class="ml-2 text-lg font-normal text-black-600 cursor-pointer"
+                class="ml-2 text-lg font-normal text-black-600 cursor-pointer capitalize"
                 ><%= questions[i].title %></label
               >
               </div>
@@ -378,7 +378,7 @@
                 class="flex my-2 px-2 py-1 items-center rounded hover:bg-purple-50"
               >
                 <div class="w-20 mr-2">
-                  <span class="text-sm text-black-800 cursor-pointer"
+                  <span class="text-sm text-black-800 cursor-pointer uppercase"
                     ><%= voters[i].voterId %></span
                   >
                 </div>
