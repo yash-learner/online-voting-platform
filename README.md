@@ -82,12 +82,12 @@ Features :
 
 Upcoming Features :
 
-- Add tests
+~~- Add tests~~
 - User can change their password
-- Implement click to copy for public link.
+~~- Implement click to copy for public link.~~
 - Instead election admin seeing a preview manually, Automatically show the preview of the voting page just before launch of election.
-- Add more validations and flash messages.
+~~- Add more validations and flash messages.~~ but can add more flash messages and validations.
 - User can reset their password.
 - Election admin can send the voter ID and password to voters as email.
-- Improve UI and responsiveness
+~~- Improve UI and responsiveness~~ but can be improved more
 - Try to bring all election activities into single page.
