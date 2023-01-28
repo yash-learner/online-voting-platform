@@ -792,7 +792,12 @@ app.get(
     const castedVotersCount = await Voter.getCastedVotersCount(election.id);
     console.log(election, questions);
     console.log(request.user, "Hello");
-    if (request.user.voted === undefined && election.status === true) {
+    // check for election admin when election is not ended
+    if (
+      request.user !== undefined &&
+      request.user.voted === undefined &&
+      election.status === true
+    ) {
       request.flash("error", "You are not a registered voter");
       return response.redirect("/elections");
     }
